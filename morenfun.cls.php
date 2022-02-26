@@ -174,7 +174,7 @@ function filter_action($str) {
 // 代码参考 F:\develope\javascript\game_\mofang_rubikcube\Just-a-Cube_Renovamen\cube\js\lbl.js 中的"模拟魔方按解法转动后的状态变化"部分
 
 //后面顺时针旋转90°, 除了3个中间层，其他6个层每层的旋转都是4个棱块和4个角块替换
-function mov_b() {
+function twist_b() {
     global $mofun;
     $ub = getSort('ub');
     $rb = getSort('rb');
@@ -200,7 +200,7 @@ function mov_b() {
 }
 
 //右面顺时针旋转90°
-function mov_r() {
+function twist_r() {
     global $mofun;
     $ur = getSort('ur');
     $fr = getSort('fr');
@@ -228,7 +228,7 @@ function mov_r() {
 }
 
 //前面顺时针旋转90°
-function mov_f() {
+function twist_f() {
     global $mofun;
     $uf = getSort('uf');
     $lf = getSort('lf');
@@ -252,7 +252,7 @@ function mov_f() {
 }
 
 //左面顺时针旋转90°
-function mov_l() {
+function twist_l() {
     global $mofun;
     $ul = getSort('ul');
     $bl = getSort('bl');
@@ -276,7 +276,7 @@ function mov_l() {
 }
 
 //顶面顺时针旋转90°
-function mov_u() {
+function twist_u() {
     global $mofun;
     $ul = getSort('ul');
     $uf = getSort('uf');
@@ -302,7 +302,7 @@ function mov_u() {
 }
 
 //底面顺时针旋转90°
-function mov_d() {
+function twist_d() {
     global $mofun;
     $dl = getSort('dl');
     $db = getSort('db');
@@ -328,51 +328,51 @@ function mov_d() {
 }
 
     //魔方基本动作函数打包
-    function mov($com) {
-        switch($com){
+    function twist_one($str) {
+        switch($str){
             case 'd': 	//d - 底面顺时针旋转90°
-                mov_d();
+                twist_d();
                 break;
             case 'D': 	//D - 底面逆时针旋转90°
-                mov_d();mov_d();mov_d();
+                twist_d();twist_d();twist_d();
                 break;
             case 'u': 	//u - 顶面顺时针旋转90°
-                mov_u();
+                twist_u();
                 break;
             case 'U': 	//U - 顶面逆时针旋转90°
-                mov_u();mov_u();mov_u();
+                twist_u();twist_u();twist_u();
                 break;
             case 'l': 	//l - 左面顺时针旋转90°
-                mov_l();
+                twist_l();
                 break;
             case 'L': 	//L - 左面逆时针旋转90°
-                mov_l();mov_l();mov_l();
+                twist_l();twist_l();twist_l();
                 break;
             case 'f': 	//f - 前面顺时针旋转90°
-                mov_f();
+                twist_f();
                 break;
             case 'F': 	//F - 前面逆时针旋转90°
-                mov_f();mov_f();mov_f();
+                twist_f();twist_f();twist_f();
                 break;
             case 'r': 	//r - 右面顺时针旋转90°
-                mov_r();
+                twist_r();
                 break;
             case 'R': 	//R - 右面逆时针旋转90°
-                mov_r();mov_r();mov_r();
+                twist_r();twist_r();twist_r();
                 break;
             case 'b': 	//b - 后面顺时针旋转90°
-                mov_b();
+                twist_b();
                 break;
             case 'B': 	//B - 后面逆时针旋转90°
-                mov_b();mov_b();mov_b();
+                twist_b();twist_b();twist_b();
                 break;
         }
     }
 
     //魔方组合动作
-    function exe($com) {
+    function twist_multi($com) {
         for ($i = 0; $i < count($com); $i++) {
-            mov($com[$i]);
+            twist_one($com[$i]);
         }
     }
 
@@ -441,41 +441,13 @@ function mov_d() {
         $mofun[$ubl] = $ob['u'][0][0] . $ob['b'][0][2] . $ob['l'][0][0];
     }
 
-    //根据魔方对象获取魔方状态
-    function scan_by_obj($ob) {
-        global $mofun;
-        foreach ($ob as $k => $l_val){
-            $mofun[$k] = $l_val;
-        }
-    }
-
     //输入魔方状态
-    function scan($ob, $type) {
-        if ($type == 1) {		// 通过对象方式获取魔方状态
-            scan_by_obj($ob);
-        } else {
-            scan_by_face($ob);
-        }
+    function scan($ob) {
+        scan_by_face($ob);
     }
 
     //输出魔方状态
     function out() {
         return $GLOBALS['mofun'];
     }
-
-    /****************************** 其它 *******************************/
-    //随机打乱魔方
-    function mad($n) {
-        $n = $n ? $n : 3;
-        $n = $n > 24 ? 24 : $n;
-        $arr = ['u','d','l','f','r','b','U','D','L','F','R','B'];
-        $str = '';
-        for($i = 0; $i < $n; $i++){
-            $x = mt_rand(0,11);
-            $str .= $arr[$x];
-        }
-        exe($str);
-        return $str;
-    }
-
 
