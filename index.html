@@ -3,6 +3,7 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
   <meta charset="UTF-8">
+  <title>myself_mofang</title>
   <script src="./morefun.js"></script>
   <script src="./jquery.js"></script>
   <style>
@@ -74,7 +75,6 @@
       transform: rotateY(180deg) translateZ(75px);
     }
   </style>
-  <title>morefun1.0</title>
 </head>
 <body>
   <div id="xxx" class="stage">
@@ -149,55 +149,42 @@
   </div>
 
   <div class="content">
-    <input type="text" id="ex" placeholder="请输入公式">
+    <input type="text" id="ex" placeholder="eg:F R U 空格可有可无">
     <input type="button" value="执行" onclick="exe(ex.value)">
-    <input type="button" value="随机" onclick="mad()">
-    <input type="button" value="hide" onclick="$('#xxx').toggle()">
+    <!--<input type="button" value="随机" onclick="mad()">-->
+    <!--<input type="button" value="隐藏/展示" onclick="$('#xxx').toggle()">-->
+    <input type="button" value="执行" onclick="exe(ex.value)">
     <br>
     <ol id="history">
-      
+
     </ol>
   </div>
-  
-<script>
 
+<script>
   var rotate = {x:0,y:0};
+  var mad_num = 5;
 
   $(function(){
     run();
-    // morefun.mad();
-    // morefun.cross_1();
     $(document).keydown(function(event) {
       var e = event || window.event || arguments.callee.caller.arguments[0];
       if(e){
-        if (e.keyCode == 37) {   //← / a  
+        if (e.keyCode == 37 || e.keyCode == 65) {   //← /a 方向左
           rotate.x = 0;
           $('.container').css('transform','rotateX(0deg)');
           $('.container').css('transform','rotateY(' + 90 * --rotate.y + 'deg)');
-        }else if(e.keyCode == 38){   //↑ / w
+        }else if(e.keyCode == 38 || e.keyCode == 87){   //↑ /w 方向上
           rotate.y = 0;
           $('.container').css('transform','rotateY(0deg)');
           $('.container').css('transform','rotateX(' + 90 * ++rotate.x + 'deg)');
-        }else if(e.keyCode == 39){   //→ / d
+        }else if(e.keyCode == 39 || e.keyCode == 68){   //→ /d 方向右
           rotate.x = 0;
           $('.container').css('transform','rotateX(0deg)');
           $('.container').css('transform','rotateY(' + 90 * ++rotate.y + 'deg)');
-        }else if(e.keyCode == 40){   //↓ / s
+        }else if(e.keyCode == 40 || e.keyCode == 83){   //↓ /s 方向下
           rotate.y = 0;
           $('.container').css('transform','rotateY(0deg)');
           $('.container').css('transform','rotateX(' + 90 * --rotate.x + 'deg)');
-        }else if(e.keyCode == 85){
-          exe('u');
-        }else if(e.keyCode == 68){
-          exe('d');
-        }else if(e.keyCode == 76){
-          exe('l');
-        }else if(e.keyCode == 70){
-          exe('f');
-        }else if(e.keyCode == 82){
-          exe('r');
-        }else if(e.keyCode == 66){
-          exe('b');
         }
       }
     });
@@ -213,24 +200,20 @@
   };
 
   function run(){
-
     morefun.scan(ob);
 
-    var mad_exp = morefun.mad();
-
+    var mad_exp = morefun.mad(mad_num);
     refresh();
 
     var step_exp = morefun.reduce(morefun.step());
-    
     refresh();
 
     console.log({mad:mad_exp,exp:step_exp});
     console.log(step_exp.length);
-
   }
 
   function exe(exp){
-    if(exp != ''){
+    if (exp != '') {
       var str = '<li>exe&nbsp;&gt;&gt;&nbsp;'+exp+'</li>';
       $('#history').append(str);
       morefun.exe(exp);
@@ -238,7 +221,7 @@
     }
   }
   function mad(){
-    var str = '<li>exe&nbsp;&gt;&gt;&nbsp;'+morefun.mad()+'</li>';
+    var str = '<li>exe&nbsp;&gt;&gt;&nbsp;'+morefun.mad(mad_num)+'</li>';
     $('#history').append(str);
     refresh();
   }
@@ -246,6 +229,7 @@
   function refresh(){
     mc = morefun.out();
     for(k in mc){
+      //console.log('k:'+k);
       $('.face_u .'+k).css('background',morefun.c[mc[k][0]]);
       $('.face_d .'+k).css('background',morefun.c[mc[k][0]]);
       $('.face_l .'+k).css('background',morefun.c[mc[k][k.indexOf('l')]]);
