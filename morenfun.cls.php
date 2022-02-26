@@ -49,7 +49,7 @@ $face_color = ['u' => 'y', 'd' => 'w', 'f' => 'b', 'b' => 'g', 'l' => 'o', 'r' =
 $play_action9 = array_merge($rlt_str_face_order, []);  // 'm','s','e' 除了6个面，还有前后转动的中层M、左右转动的中层S、水平转动的中层E
 
 // 魔方对象，共26块 = 6(个中心快) + 12(棱块) + 8(角块) ，存储魔方的状态。
-//$m = [
+//$mofun = [
 //    'd'=>   'w',   'u'=>   'y',   'l'=>   'o',   'f'=>   'b',   'r'=>   'r',   'b'=>   'g', // 6个中心块， 下白上黄，前蓝后绿，左橙右红;名称及其对应颜色；
 //    'dl'=>  'wo',  'df'=>  'wb',  'dr'=>  'wr',  'db'=>  'wg',  // 12个中间棱块之下层交界处，4个；名称及其对应颜色；
 //    'ul'=>  'yo',  'uf'=>  'yb',  'ur'=>  'yr',  'ub'=>  'yg',  // 12个中间棱块之上层交界处，4个；
@@ -57,12 +57,12 @@ $play_action9 = array_merge($rlt_str_face_order, []);  // 'm','s','e' 除了6个
 //    'dlf'=> 'wob', 'dfr'=> 'wbr', 'drb'=> 'wrg', 'dlb'=> 'wgo', // 8个角块之下层，4个；名称及其对应颜色；
 //    'ulf'=> 'yob', 'ufr'=> 'ybr', 'urb'=> 'yrg', 'ulb'=> 'ygo'  // 8个角块之上层，4个；
 //];
-$m = init_morefun($rlt_str_face_order, $face_color);    // 共26个元素，程序生成的跟上面一样，只是bl组合的顺序不一样。
+$mofun = init_morefun($rlt_str_face_order, $face_color);    // 共26个元素，程序生成的跟上面一样，只是bl组合的顺序不一样。
 
 
 // 初始魔方状态
 function init_morefun($face6_arr, $face_color) {
-    $l_rlt = [];    // 参照$m
+    $l_rlt = [];    // 参照$mofun
     // 6个中心块
     foreach ($face6_arr as $letter_1) {
         $l_rlt[$letter_1] = $face_color[$letter_1]; // 6个中心块
@@ -88,7 +88,7 @@ function init_morefun($face6_arr, $face_color) {
     // 8个角块，三个字母的组合，同时需要删除重复的
     for ($i = 0; $i < $num; $i++) {
         for ($j = $i+1; $j < $num; $j++) {
-            for ($m = $j+1; $m < $num; $m++) {  // 排列组合，不分前后，三个面需要不同所以可以$m = $j+1;
+            for ($m = $j+1; $m < $num; $m++) {  // 排列组合，不分前后，$m = $j+1;
                 // 需要排除掉上下、前后、左右这三种ud、lr、fb字母同时出现的问题
                 $key = $face6_arr[$i] . $face6_arr[$j] . $face6_arr[$m]; // 棱块key名称需要固定一个顺序
                 if (false !== strpos($key, 'u') && false !== strpos($key, 'd')) continue;
@@ -170,7 +170,7 @@ function filter_action($str) {
 
 
 /**************************** 魔方基本动作 ******************************/
-//$m = [
+//$mofun = [
 //    'd'=>   'w',   'u'=>   'y',   'l'=>   'o',   'f'=>   'b',   'r'=>   'r',   'b'=>   'g', // 6个中心块， 下白上黄，前蓝后绿，左橙右红;名称及其对应颜色；
 //    'dl'=>  'wo',  'df'=>  'wb',  'dr'=>  'wr',  'db'=>  'wg',  // 12个中间棱块之下层交界处，4个；名称及其对应颜色；
 //    'ul'=>  'yo',  'uf'=>  'yb',  'ur'=>  'yr',  'ub'=>  'yg',  // 12个中间棱块之上层交界处，4个；
@@ -181,122 +181,122 @@ function filter_action($str) {
 
 //背面顺时针旋转90°
 function mov_b() {
-    global $m;
+    global $mofun;
     // 背面中心块没有动；只有4个棱块和4个角块共8块位置发生变化。
-    $tmp = $m['ub'];        // 选择一个块临时存放，
-    $m['ub'] = $m['rb'];    // 上面背面被右背替换，
-    $m['rb'] = $m['db'];
-    $m['db'] = $m['bl'];
-    $m['db'] = $m['db'][1] + $m['db'][0];
-    $m['bl'] = $tmp;
-    $m['bl'] = $m['bl'][1] + $m['bl'][0];
-    $tmp = $m['ubl'];
-    $m['ubl'] = $m['urb'];
-    $m['ubl'] = $m['ubl'][1] + $m['ubl'][2] + $m['ubl'][0];
-    $m['urb'] = $m['drb'];
-    $m['urb'] = $m['urb'][1] + $m['urb'][0] + $m['urb'][2];
-    $m['drb'] = $m['dbl'];
-    $m['drb'] = $m['drb'][2] + $m['drb'][0] + $m['drb'][1];
-    $m['dbl'] = $tmp;
-    $m['dbl'] = $m['dbl'][2] + $m['dbl'][1] + $m['dbl'][0];
+    $tmp = $mofun[getSort('ub')];        // 选择一个块临时存放，
+    $mofun[getSort('ub')] = $mofun[getSort('rb')];    // 上面背面被右背替换，
+    $mofun[getSort('rb')] = $mofun[getSort('db')];
+    $mofun[getSort('db')] = $mofun[getSort('bl')];
+    $mofun[getSort('db')] = $mofun[getSort('db')][1] + $mofun[getSort('db')][0];
+    $mofun[getSort('bl')] = $tmp;
+    $mofun[getSort('bl')] = $mofun[getSort('bl')][1] + $mofun[getSort('bl')][0];
+    $tmp = $mofun[getSort('ubl')];
+    $mofun[getSort('ubl')] = $mofun[getSort('urb')];
+    $mofun[getSort('ubl')] = $mofun[getSort('ubl')][1] + $mofun[getSort('ubl')][2] + $mofun[getSort('ubl')][0];
+    $mofun[getSort('urb')] = $mofun[getSort('drb')];
+    $mofun[getSort('urb')] = $mofun[getSort('urb')][1] + $mofun[getSort('urb')][0] + $mofun[getSort('urb')][2];
+    $mofun[getSort('drb')] = $mofun[getSort('dbl')];
+    $mofun[getSort('drb')] = $mofun[getSort('drb')][2] + $mofun[getSort('drb')][0] + $mofun[getSort('drb')][1];
+    $mofun[getSort('dbl')] = $tmp;
+    $mofun[getSort('dbl')] = $mofun[getSort('dbl')][2] + $mofun[getSort('dbl')][1] + $mofun[getSort('dbl')][0];
 }
 
 
 //右面顺时针旋转90°
 function mov_r() {
-    global $m;
-    $tmp = $m['ur'];
-    $m['ur'] = $m['fr'];
-    $m['fr'] = $m['dr'];
-    $m['dr'] = $m['rb'];
-    $m['dr'] = $m['dr'][1] + $m['dr'][0];
-    $m['rb'] = $tmp;
-    $m['rb'] = $m['rb'][1] + $m['rb'][0];
-    $tmp = $m['urb'];
-    $m['urb'] = $m['ufr'];
-    $m['urb'] = $m['urb'][1] + $m['urb'][2] + $m['urb'][0];
-    $m['ufr'] = $m['dfr'];
-    $m['ufr'] = $m['ufr'][1] + $m['ufr'][0] + $m['ufr'][2];
-    $m['dfr'] = $m['drb'];
-    $m['dfr'] = $m['dfr'][2] + $m['dfr'][0] + $m['dfr'][1];
-    $m['drb'] = $tmp;
-    $m['drb'] = $m['drb'][2] + $m['drb'][1] + $m['drb'][0];
+    global $mofun;
+    $tmp = $mofun[getSort('ur')];
+    $mofun[getSort('ur')] = $mofun[getSort('fr')];
+    $mofun[getSort('fr')] = $mofun[getSort('dr')];
+    $mofun[getSort('dr')] = $mofun[getSort('rb')];
+    $mofun[getSort('dr')] = $mofun[getSort('dr')][1] + $mofun[getSort('dr')][0];
+    $mofun[getSort('rb')] = $tmp;
+    $mofun[getSort('rb')] = $mofun[getSort('rb')][1] + $mofun[getSort('rb')][0];
+    $tmp = $mofun[getSort('urb')];
+    $mofun[getSort('urb')] = $mofun[getSort('ufr')];
+    $mofun[getSort('urb')] = $mofun[getSort('urb')][1] + $mofun[getSort('urb')][2] + $mofun[getSort('urb')][0];
+    $mofun[getSort('ufr')] = $mofun[getSort('dfr')];
+    $mofun[getSort('ufr')] = $mofun[getSort('ufr')][1] + $mofun[getSort('ufr')][0] + $mofun[getSort('ufr')][2];
+    $mofun[getSort('dfr')] = $mofun[getSort('drb')];
+    $mofun[getSort('dfr')] = $mofun[getSort('dfr')][2] + $mofun[getSort('dfr')][0] + $mofun[getSort('dfr')][1];
+    $mofun[getSort('drb')] = $tmp;
+    $mofun[getSort('drb')] = $mofun[getSort('drb')][2] + $mofun[getSort('drb')][1] + $mofun[getSort('drb')][0];
 }
 
 //前面顺时针旋转90°
 function mov_f() {
-    global $m;
-    $tmp = $m['uf'];
-    $m['uf'] = $m['lf'];
-    $m['lf'] = $m['df'];
-    $m['df'] = $m['fr'];
-    $m['df'] = $m['df'][1] + $m['df'][0];
-    $m['fr'] = $tmp;
-    $m['fr'] = $m['fr'][1] + $m['fr'][0];
-    $tmp = $m['ufr'];
-    $m['ufr'] = $m['ulf'];
-    $m['ufr'] = $m['ufr'][1] + $m['ufr'][2] + $m['ufr'][0];
-    $m['ulf'] = $m['dlf'];
-    $m['ulf'] = $m['ulf'][1] + $m['ulf'][0] + $m['ulf'][2];
-    $m['dlf'] = $m['dfr'];
-    $m['dlf'] = $m['dlf'][2] + $m['dlf'][0] + $m['dlf'][1];
-    $m['dfr'] = $tmp;
-    $m['dfr'] = $m['dfr'][2] + $m['dfr'][1] + $m['dfr'][0];
+    global $mofun;
+    $tmp = $mofun[getSort('uf')];
+    $mofun[getSort('uf')] = $mofun[getSort('lf')];
+    $mofun[getSort('lf')] = $mofun[getSort('df')];
+    $mofun[getSort('df')] = $mofun[getSort('fr')];
+    $mofun[getSort('df')] = $mofun[getSort('df')][1] . $mofun[getSort('df')][0];
+    $mofun[getSort('fr')] = $tmp;
+    $mofun[getSort('fr')] = $mofun[getSort('fr')][1] . $mofun[getSort('fr')][0];
+    $tmp = $mofun[getSort('ufr')];
+    $mofun[getSort('ufr')] = $mofun[getSort('ulf')];
+    $mofun[getSort('ufr')] = $mofun[getSort('ufr')][1] . $mofun[getSort('ufr')][2] . $mofun[getSort('ufr')][0];
+    $mofun[getSort('ulf')] = $mofun[getSort('dlf')];
+    $mofun[getSort('ulf')] = $mofun[getSort('ulf')][1] . $mofun[getSort('ulf')][0] . $mofun[getSort('ulf')][2];
+    $mofun[getSort('dlf')] = $mofun[getSort('dfr')];
+    $mofun[getSort('dlf')] = $mofun[getSort('dlf')][2] . $mofun[getSort('dlf')][0] . $mofun[getSort('dlf')][1];
+    $mofun[getSort('dfr')] = $tmp;
+    $mofun[getSort('dfr')] = $mofun[getSort('dfr')][2] . $mofun[getSort('dfr')][1] . $mofun[getSort('dfr')][0];
 }
 
 //左面顺时针旋转90°
 function mov_l() {
-    global $m;
-    $tmp = $m['ul'];
-    $m['ul'] = $m['bl'];
-    $m['bl'] = $m['dl'];
-    $m['dl'] = $m['lf'];
-    $m['dl'] = $m['dl'][1] + $m['dl'][0];
-    $m['lf'] = $tmp;
-    $m['lf'] = $m['lf'][1] + $m['lf'][0];
-    $tmp = $m['ulf'];
-    $m['ulf'] = $m['ubl'];
-    $m['ulf'] = $m['ulf'][1] + $m['ulf'][2] + $m['ulf'][0];
-    $m['ubl'] = $m['dbl'];
-    $m['ubl'] = $m['ubl'][1] + $m['ubl'][0] + $m['ubl'][2];
-    $m['dbl'] = $m['dlf'];
-    $m['dbl'] = $m['dbl'][2] + $m['dbl'][0] + $m['dbl'][1];
-    $m['dlf'] = $tmp;
-    $m['dlf'] = $m['dlf'][2] + $m['dlf'][1] + $m['dlf'][0];
+    global $mofun;
+    $tmp = $mofun[getSort('ul')];
+    $mofun[getSort('ul')] = $mofun[getSort('bl')];
+    $mofun[getSort('bl')] = $mofun[getSort('dl')];
+    $mofun[getSort('dl')] = $mofun[getSort('lf')];
+    $mofun[getSort('dl')] = $mofun[getSort('dl')][1] . $mofun[getSort('dl')][0];
+    $mofun[getSort('lf')] = $tmp;
+    $mofun[getSort('lf')] = $mofun[getSort('lf')][1] . $mofun[getSort('lf')][0];
+    $tmp = $mofun[getSort('ulf')];
+    $mofun[getSort('ulf')] = $mofun[getSort('ubl')];
+    $mofun[getSort('ulf')] = $mofun[getSort('ulf')][1] . $mofun[getSort('ulf')][2] . $mofun[getSort('ulf')][0];
+    $mofun[getSort('ubl')] = $mofun[getSort('dbl')];
+    $mofun[getSort('ubl')] = $mofun[getSort('ubl')][1] . $mofun[getSort('ubl')][0] . $mofun[getSort('ubl')][2];
+    $mofun[getSort('dbl')] = $mofun[getSort('dlf')];
+    $mofun[getSort('dbl')] = $mofun[getSort('dbl')][2] . $mofun[getSort('dbl')][0] . $mofun[getSort('dbl')][1];
+    $mofun[getSort('dlf')] = $tmp;
+    $mofun[getSort('dlf')] = $mofun[getSort('dlf')][2] . $mofun[getSort('dlf')][1] . $mofun[getSort('dlf')][0];
 }
 
 //顶面顺时针旋转90°
 function mov_u() {
-    global $m;
+    global $mofun;
     //棱块转动
-    $tmp = $m['ul'];
-    $m['ul'] = $m['uf'];
-    $m['uf'] = $m['ur'];
-    $m['ur'] = $m['ub'];
-    $m['ub'] = $tmp;
+    $tmp = $mofun[getSort('ul')];
+    $mofun[getSort('ul')] = $mofun[getSort('uf')];
+    $mofun[getSort('uf')] = $mofun[getSort('ur')];
+    $mofun[getSort('ur')] = $mofun[getSort('ub')];
+    $mofun[getSort('ub')] = $tmp;
     //角块转动
-    $tmp = $m['ulf'];
-    $m['ulf'] = $m['ufr'];
-    $m['ufr'] = $m['urb'];
-    $m['urb'] = $m['ubl'];
-    $m['ubl'] = $tmp;
+    $tmp = $mofun[getSort('ulf')];
+    $mofun[getSort('ulf')] = $mofun[getSort('ufr')];
+    $mofun[getSort('ufr')] = $mofun[getSort('urb')];
+    $mofun[getSort('urb')] = $mofun[getSort('ubl')];
+    $mofun[getSort('ubl')] = $tmp;
 }
 
 //底面顺时针旋转90°
 function mov_d() {
-    global $m;
+    global $mofun;
     //棱块转动
-    $tmp = $m['dl'];
-    $m['dl'] = $m['db'];
-    $m['db'] = $m['dr'];
-    $m['dr'] = $m['df'];
-    $m['df'] = $tmp;
+    $tmp = $mofun[getSort('dl')];
+    $mofun[getSort('dl')] = $mofun[getSort('db')];
+    $mofun[getSort('db')] = $mofun[getSort('dr')];
+    $mofun[getSort('dr')] = $mofun[getSort('df')];
+    $mofun[getSort('df')] = $tmp;
     //角块转动
-    $tmp = $m['dlf'];
-    $m['dlf'] = $m['dbl'];
-    $m['dbl'] = $m['drb'];
-    $m['drb'] = $m['dfr'];
-    $m['dfr'] = $tmp;
+    $tmp = $mofun[getSort('dlf')];
+    $mofun[getSort('dlf')] = $mofun[getSort('dbl')];
+    $mofun[getSort('dbl')] = $mofun[getSort('drb')];
+    $mofun[getSort('drb')] = $mofun[getSort('dfr')];
+    $mofun[getSort('dfr')] = $tmp;
 }
 
     //魔方基本动作函数打包
@@ -363,41 +363,41 @@ function mov_d() {
     /*************************** 输入输出操作 **************************/
     //根据魔方六个面的颜色数组获取魔方状态
     function scan_by_face($ob) {
-        global $m;
-        $m['d'] = $ob['d'][1][1];
-        $m['u'] = $ob['u'][1][1];
-        $m['l'] = $ob['l'][1][1];
-        $m['f'] = $ob['f'][1][1];
-        $m['r'] = $ob['r'][1][1];
-        $m['b'] = $ob['b'][1][1];
-        $m['dl'] = $ob['d'][1][0] + $ob['l'][2][1];
-        $m['df'] = $ob['d'][0][1] + $ob['f'][2][1];
-        $m['dr'] = $ob['d'][1][2] + $ob['r'][2][1];
-        $m['db'] = $ob['d'][2][1] + $ob['b'][2][1];
-        $m['ul'] = $ob['u'][1][0] + $ob['l'][0][1];
-        $m['uf'] = $ob['u'][2][1] + $ob['f'][0][1];
-        $m['ur'] = $ob['u'][1][2] + $ob['r'][0][1];
-        $m['ub'] = $ob['u'][0][1] + $ob['b'][0][1];
-        $m['lf'] = $ob['l'][1][2] + $ob['f'][1][0];
-        $m['fr'] = $ob['f'][1][2] + $ob['r'][1][0];
-        $m['rb'] = $ob['r'][1][2] + $ob['b'][1][0];
-        $m['bl'] = $ob['b'][1][2] + $ob['l'][1][0];
-        $m['dlf'] = $ob['d'][0][0] + $ob['l'][2][2] + $ob['f'][2][0];
-        $m['dfr'] = $ob['d'][0][2] + $ob['f'][2][2] + $ob['r'][2][0];
-        $m['drb'] = $ob['d'][2][2] + $ob['r'][2][2] + $ob['b'][2][0];
-        $m['dbl'] = $ob['d'][2][0] + $ob['b'][2][2] + $ob['l'][2][0];
-        $m['ulf'] = $ob['u'][2][0] + $ob['l'][0][2] + $ob['f'][0][0];
-        $m['ufr'] = $ob['u'][2][2] + $ob['f'][0][2] + $ob['r'][0][0];
-        $m['urb'] = $ob['u'][0][2] + $ob['r'][0][2] + $ob['b'][0][0];
-        $m['ubl'] = $ob['u'][0][0] + $ob['b'][0][2] + $ob['l'][0][0];
-        //return $m;
+        global $mofun;
+        $mofun[getSort('d')] = $ob['d'][1][1];
+        $mofun[getSort('u')] = $ob['u'][1][1];
+        $mofun[getSort('l')] = $ob['l'][1][1];
+        $mofun[getSort('f')] = $ob['f'][1][1];
+        $mofun[getSort('r')] = $ob['r'][1][1];
+        $mofun[getSort('b')] = $ob['b'][1][1];
+        $mofun[getSort('dl')] = $ob['d'][1][0] . $ob['l'][2][1];
+        $mofun[getSort('df')] = $ob['d'][0][1] . $ob['f'][2][1];
+        $mofun[getSort('dr')] = $ob['d'][1][2] . $ob['r'][2][1];
+        $mofun[getSort('db')] = $ob['d'][2][1] . $ob['b'][2][1];
+        $mofun[getSort('ul')] = $ob['u'][1][0] . $ob['l'][0][1];
+        $mofun[getSort('uf')] = $ob['u'][2][1] . $ob['f'][0][1];
+        $mofun[getSort('ur')] = $ob['u'][1][2] . $ob['r'][0][1];
+        $mofun[getSort('ub')] = $ob['u'][0][1] . $ob['b'][0][1];
+        $mofun[getSort('lf')] = $ob['l'][1][2] . $ob['f'][1][0];
+        $mofun[getSort('fr')] = $ob['f'][1][2] . $ob['r'][1][0];
+        $mofun[getSort('rb')] = $ob['r'][1][2] . $ob['b'][1][0];
+        $mofun[getSort('bl')] = $ob['b'][1][2] . $ob['l'][1][0];
+        $mofun[getSort('dlf')] = $ob['d'][0][0] . $ob['l'][2][2] . $ob['f'][2][0];
+        $mofun[getSort('dfr')] = $ob['d'][0][2] . $ob['f'][2][2] . $ob['r'][2][0];
+        $mofun[getSort('drb')] = $ob['d'][2][2] . $ob['r'][2][2] . $ob['b'][2][0];
+        $mofun[getSort('dbl')] = $ob['d'][2][0] . $ob['b'][2][2] . $ob['l'][2][0];
+        $mofun[getSort('ulf')] = $ob['u'][2][0] . $ob['l'][0][2] . $ob['f'][0][0];
+        $mofun[getSort('ufr')] = $ob['u'][2][2] . $ob['f'][0][2] . $ob['r'][0][0];
+        $mofun[getSort('urb')] = $ob['u'][0][2] . $ob['r'][0][2] . $ob['b'][0][0];
+        $mofun[getSort('ubl')] = $ob['u'][0][0] . $ob['b'][0][2] . $ob['l'][0][0];
+        //return $mofun;
     }
 
     //根据魔方对象获取魔方状态
     function scan_by_obj($ob) {
-        global $m;
+        global $mofun;
         foreach ($ob as $k => $l_val){
-            $m[$k] = $l_val;
+            $mofun[$k] = $l_val;
         }
     }
 
@@ -412,8 +412,8 @@ function mov_d() {
 
     //输出魔方状态
     function out() {
-        global $m;
-        return $m;
+        global $mofun;
+        return $mofun;
     }
 
     /****************************** 其它 *******************************/
