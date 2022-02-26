@@ -1,67 +1,56 @@
 <?php
 /*
- 输入转动步骤，得到字符串结果，(小写字母是顺时针，大写字母是逆时针)
- php rubikcube.php -a "f r u R U F"
+ 输入转动步骤，得到字符串结果，
+    主要规则，通常单字母(U或U1)是顺时针，U2表示旋转180°，U3(或U')是逆时针；一个面的转动也就是这三种情况。
 
- php rubikcube.php -o "urfdlb" -a "f r u R U F"  -- 指定排序，动作组合
+ php rubikcube.php -d "F R U R' U' F'"
+ php rubikcube.php -d "R" -k
+
+ php rubikcube.php -o "urfdlb" -d "F R U R' U' F'"  -- 指定排序，动作组合
 
  */
-include_once 'morenfun.cls.php';
+//define('clockwise', 'clockwise');           // '顺时针'
+//define('anti-clockwise', 'anti-clockwise'); // '逆时针'
 
-$option = getopt('a:b:o:');
+include_once 'morefun.php';
 
-
-
-
+$option = getopt('d:b:o:a:k:');
 main($option);
 
-function main($o)
-{
+
+function main($o) {
     // 1. 参数检查，
     //   1) action参数，转动动作字母是否在指定动作限定内，不认识的动作，直接删除掉
-    $str = (isset($o['a']) && $o['a']) ? $o['a'] : '';
-    if (!$str) {
-        echo ' -a 必须提供操作动作，如：php rubikcube.php -a "f r u R U F"' . "\r\n";
+    $str = (isset($o['d']) && $o['d']) ? $o['d'] : '';
+    if (!isset($o['d'])) {
+        echo ' -d 必须提供操作动作，如：php rubikcube.php -d "R R\'"' . "\r\n";
         return '';
     }
+
     //   2) 结果顺序order参数, 主要是结果顺序
     $order_str = (isset($o['o']) && $o['o']) ? $o['o'] : 'urfdlb';
     //   3) 初始状态
-    $begin_ob = (isset($o['b']) && $o['b']) ? $o['b'] : $GLOBALS['ob'];
+    $begin_ob = (isset($o['b']) && $o['b']) ? $o['b'] : $GLOBALS['mofun'];
+    //   4) 动作别名
+    $alias_arr = (isset($o['a']) && $o['a']) ? $o['a'] : [];
+    //   5) 是否要空格
+    $kongge = isset($o['k']) ? $o['k'] : 1;
 
-    // 2. 参数过滤，如果出现了不被识别的动作，过滤掉，并不给出提示。TODO 第一期只允许单字母动作,U2,U3-这种旋转180°，270°(逆时针)放到下期
-    $str = str_replace(' ', '', $str);  // 去掉空白字符
-    $str = strtolower($str);            // 全部转成小写字母，大小写暂不区分
-    $action_arr = str_split($str);
-    $action_arr = array_filter($action_arr, 'filter_action');   // 限定动作
+    // 2. 参数过滤，如果出现了不被识别的动作，过滤掉，并不给出提示。
+    $action_arr = get_action_by_str($str, $alias_arr);
 
-    // 3. 初始状态：通常默认是完好的 $begin_ob，也可以参数指定。
+    // 3. 初始状态：通常默认是完好的 $begin_ob，也可以参数指定
 
-    print_r($action_arr);
-    // 4. 逐个动作执行
-    foreach ($action_arr as $l_act_val) {
-        //
+
+    // 4. 逐个动作执行，也可以是空动作，不进行twist旋转操作
+    if ($action_arr) {
+        // print_r($action_arr);
+        twist_multi($action_arr);
     }
 
-    print_r($GLOBALS['m']);
-
-
-    // 字符串排序
-    // $str2 = getSort($str2);
-
+    // 5. 按照order参数指定的顺序，输出各个面各块的颜色。
+    $l_str = getRltStr($GLOBALS['mofun'], $order_str, $kongge);
+    echo $l_str . "\r\n";
 
     return '';
 }
-
-//print_r($m);
-// 按照 $face_sort 中的顺序，并且字母只能在这6个字母
-//echo 'before: '. $str . "\r\n";
-//$str = str_replace(' ', '', $str);
-//$str = strtolower($str);
-//echo 'strtolower: '. $str . "\r\n";
-//$str = getSort($str);
-//echo 'after: '. $str . "\r\n";
-
-// 结果字符串，默认完好的顺序是 上、右、前、下、左、后： UUUUUUUUU RRRRRRRRR FFFFFFFFF DDDDDDDDD LLLLLLLLL BBBBBBBBB
-$rlt_str_order_arr = getResultStringFaceOrder();
-//$rlt_str_face_order = ['u','r','f','d','l','b'];  // 6个面字符串顺序，也可以改顺序
