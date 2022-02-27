@@ -4,7 +4,7 @@
     主要规则，通常单字母(U或U1)是顺时针，U2表示旋转180°，U3(或U')是逆时针；一个面的转动也就是这三种情况。
 
  php rubikcube.php -d "F R U R' U' F'"
- php rubikcube.php -d "R" -k
+ php rubikcube.php -d "R"
 
  php rubikcube.php -o "urfdlb" -d "F R U R' U' F'"  -- 指定排序，动作组合
 
@@ -34,7 +34,7 @@ function main($o) {
     //   4) 动作别名
     $alias_arr = (isset($o['a']) && $o['a']) ? $o['a'] : [];
     //   5) 是否要空格
-    $kongge = isset($o['k']) ? $o['k'] : 1;
+    $kongge = (isset($o['k']) && $o['k']) ? $o['k'] : 0;
 
     // 2. 参数过滤，如果出现了不被识别的动作，过滤掉，并不给出提示。
     $action_arr = get_action_by_str($str, $alias_arr);

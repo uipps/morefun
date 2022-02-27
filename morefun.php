@@ -91,7 +91,7 @@ function getSort($str) {
 //右面顺时针旋转90°，只需要三维数组的相关节点的替换表示出来即可。
 function twist_r() {
     global $mofun;
-    // 涉及到5个大面-20个小颜色面块的变化，除了对面(l左边没有变化)，每个面都需要进行一些变换。
+    // 涉及到5个大面-20个小颜色面块的变化，除了对面(l左面没有变化)，每个面都需要进行一些变换。
     // 1. 4个面的变化
     $tmp1 = $mofun['u'][0][2];              // 就是原来U3位置，将其颜色先放到临时变量中
     $mofun['u'][0][2] = $mofun['f'][0][2];  // U3被F3替代
@@ -117,7 +117,7 @@ function twist_r() {
     $mofun['r'][0][0] = $mofun['r'][2][0];  // R1被R7替代
     $mofun['r'][2][0] = $mofun['r'][2][2];  // R7被R9替代
     $mofun['r'][2][2] = $mofun['r'][0][2];  // R9被R3替代
-    $mofun['r'][0][0] = $mofun['r'][2][0];  // R3被R1替代
+    $mofun['r'][0][0] = $tmp1;              // R3被R1替代
 
     $tmp2 = $mofun['r'][0][1];              // 就是原来R2位置
     $mofun['r'][0][1] = $mofun['r'][2][0];  // R2被R4替代
@@ -128,16 +128,49 @@ function twist_r() {
 
 //后面顺时针旋转90°,
 function twist_b() {
+    global $mofun;
+    // 涉及到5个大面-20个小颜色面块的变化，除了对面(f前面没有变化)，每个面都需要进行一些变换。
+    // 1. 所转面（后），中心块没有动；其他8个都有变化。
+    $tmp1 = $mofun['b'][0][0];              // 原来 B1 位置
+    $mofun['b'][0][0] = $mofun['b'][2][0];  // B1 被 B7 替代
+    $mofun['b'][2][0] = $mofun['b'][2][2];  // B7 被 B9 替代
+    $mofun['b'][2][2] = $mofun['b'][0][2];  // B9 被 B3 替代
+    $mofun['b'][0][2] = $tmp1;              // B3 被 B1 替代
 
+    $tmp2 = $mofun['b'][0][1];              // 原来 B2 位置
+    $mofun['b'][0][1] = $mofun['b'][1][0];  // B2 被 B4 替代
+    $mofun['b'][1][0] = $mofun['b'][2][1];  // B4 被 B8 替代
+    $mofun['b'][2][1] = $mofun['b'][1][2];  // B8 被 B6 替代
+    $mofun['b'][1][2] = $tmp2;              // B6 被 B2 替代
+
+    // 2. 其他4个面的变化, 每个面3个小块发生变动
+    $tmp2 = $mofun['u'][0][0];              // 原来 U1 位置
+    $mofun['u'][0][0] = $mofun['r'][0][2];  // U1 被 R3 替代
+    $mofun['r'][0][2] = $mofun['d'][2][2];  // R3 被 D9 替代
+    $mofun['d'][2][2] = $mofun['l'][2][0];  // D9 被 L7 替代
+    $mofun['l'][2][0] = $tmp2;              // L7 被 U1 替代
+
+    $tmp3 = $mofun['u'][0][1];              // 原来 U2 位置
+    $mofun['u'][0][1] = $mofun['r'][1][2];  // U2 被 R6 替代
+    $mofun['r'][1][2] = $mofun['d'][2][1];  // R6 被 D8 替代
+    $mofun['d'][2][1] = $mofun['l'][1][0];  // D8 被 L4 替代
+    $mofun['l'][1][0] = $tmp3;              // L4 被 U2 替代
+
+    $tmp1 = $mofun['u'][0][2];              // 原来 U3 位置
+    $mofun['u'][0][2] = $mofun['r'][2][2];  // U3 被 R9 替代
+    $mofun['r'][2][2] = $mofun['d'][2][0];  // R9 被 D7 替代
+    $mofun['d'][2][0] = $mofun['l'][0][0];  // D7 被 L1 替代
+    $mofun['l'][0][0] = $tmp1;              // L1 被 U3 替代
 }
 
 //前面顺时针旋转90°
 function twist_f() {
-
+    global $mofun;
 }
 
 //左面顺时针旋转90°
 function twist_l() {
+    global $mofun;
 
 }
 
@@ -152,6 +185,26 @@ function twist_d() {
     global $mofun;
     //
 }
+
+//左右中间层顺时针旋转90°（xy轴，z-0）
+function twist_s() {
+    global $mofun;
+    //
+}
+
+//水平中间层顺时针旋转90°（xz轴，y-0）
+function twist_e() {
+    global $mofun;
+    //
+}
+
+//前后中间层顺时针旋转90°（yz轴，x-0）
+function twist_m() {
+    global $mofun;
+    //
+}
+
+
 
 //魔方基本动作函数打包
 function twist_one($str) {
