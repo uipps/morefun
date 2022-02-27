@@ -307,22 +307,74 @@ function twist_d() {
     $mofun['r'][2][2] = $tmp3;              // R9 被 F9 替代
 }
 
-//左右中间层顺时针旋转90°（xy轴，z-0）
-function twist_s() {
+
+//前后中间层顺时针旋转90°（yz轴，x-0）。// 从操作的便捷性来说，前后中间层可以用一下，而水平和左右中间层用的很少，后2个先不实现。
+function twist_m() {    // TODO 待验证正确性
     global $mofun;
-    //
+    // 左右两面均没有变化，只有yz轴12个色块调换位置
+    $tmp1 = $mofun['u'][0][1];              // 原来 U2 位置
+    $mofun['u'][0][1] = $mofun['f'][0][1];  // U2 被 F2 替代
+    $mofun['f'][0][1] = $mofun['d'][0][1];  // F2 被 D2 替代
+    $mofun['d'][0][1] = $mofun['b'][2][1];  // D2 被 B8 替代
+    $mofun['b'][2][1] = $tmp1;              // B8 被 U2 替代
+
+    $tmp2 = $mofun['u'][1][1];              // 原来 U5 位置
+    $mofun['u'][1][1] = $mofun['f'][1][1];  // U5 被 F5 替代
+    $mofun['f'][1][1] = $mofun['d'][1][1];  // F5 被 D5 替代
+    $mofun['d'][1][1] = $mofun['b'][1][1];  // D5 被 B5 替代
+    $mofun['b'][1][1] = $tmp2;              // B5 被 U5 替代
+
+    $tmp3 = $mofun['u'][2][1];              // 原来 U8 位置
+    $mofun['u'][2][1] = $mofun['f'][2][1];  // U8 被 F8 替代
+    $mofun['f'][2][1] = $mofun['d'][2][1];  // F8 被 D8 替代
+    $mofun['d'][2][1] = $mofun['b'][0][1];  // D8 被 B2 替代
+    $mofun['b'][0][1] = $tmp3;              // B2 被 U8 替代
+}
+
+//左右中间层顺时针旋转90°（xy轴，z-0）
+function twist_s() {    // TODO 待验证正确性
+    global $mofun;
+    // 前后两面均没有变化，只有xy轴12个色块调换位置
+    $tmp1 = $mofun['u'][1][0];              // 原来 U4 位置
+    $mofun['u'][1][0] = $mofun['l'][2][1];  // U4 被 L8 替代
+    $mofun['l'][2][1] = $mofun['d'][1][2];  // L8 被 D6 替代
+    $mofun['d'][1][2] = $mofun['r'][0][1];  // D6 被 R2 替代
+    $mofun['r'][0][1] = $tmp1;              // R2 被 U4 替代
+
+    $tmp2 = $mofun['u'][1][1];              // 原来 U5 位置
+    $mofun['u'][1][1] = $mofun['l'][1][1];  // U5 被 L5 替代
+    $mofun['l'][1][1] = $mofun['d'][1][1];  // L5 被 D5 替代
+    $mofun['d'][1][1] = $mofun['r'][1][1];  // D5 被 R5 替代
+    $mofun['r'][1][1] = $tmp2;              // R5 被 U5 替代
+
+    $tmp3 = $mofun['u'][1][2];              // 原来 U6 位置
+    $mofun['u'][1][2] = $mofun['l'][0][1];  // U6 被 L2 替代
+    $mofun['l'][0][1] = $mofun['d'][1][0];  // L2 被 D4 替代
+    $mofun['d'][1][0] = $mofun['r'][2][1];  // D4 被 R8 替代
+    $mofun['r'][2][1] = $tmp3;              // R8 被 U6 替代
 }
 
 //水平中间层顺时针旋转90°（xz轴，y-0）
-function twist_e() {
+function twist_e() {    // TODO 待验证正确性
     global $mofun;
-    //
-}
+    // 上下两面均没有变化，只有xz轴12个色块调换位置
+    $tmp1 = $mofun['f'][1][0];              // 原来 F4 位置
+    $mofun['f'][1][0] = $mofun['l'][1][0];  // F4 被 L4 替代
+    $mofun['l'][1][0] = $mofun['b'][1][0];  // L4 被 B4 替代
+    $mofun['b'][1][2] = $mofun['r'][1][0];  // B4 被 R4 替代
+    $mofun['r'][1][0] = $tmp1;              // R4 被 F4 替代
 
-//前后中间层顺时针旋转90°（yz轴，x-0）
-function twist_m() {
-    global $mofun;
-    //
+    $tmp2 = $mofun['f'][1][1];              // 原来 F5 位置
+    $mofun['f'][1][1] = $mofun['l'][1][1];  // F5 被 L5 替代
+    $mofun['l'][1][1] = $mofun['b'][1][1];  // L5 被 B5 替代
+    $mofun['b'][1][1] = $mofun['r'][1][1];  // B5 被 R5 替代
+    $mofun['r'][1][1] = $tmp2;              // R5 被 F5 替代
+
+    $tmp3 = $mofun['f'][1][2];              // 原来 F6 位置
+    $mofun['f'][1][2] = $mofun['l'][1][2];  // F6 被 L6 替代
+    $mofun['l'][1][2] = $mofun['b'][1][2];  // L6 被 B6 替代
+    $mofun['b'][1][2] = $mofun['r'][1][2];  // B6 被 R6 替代
+    $mofun['r'][1][2] = $tmp3;              // R6 被 F6 替代
 }
 
 
@@ -377,6 +429,15 @@ function twist_one($str) {
             twist_b();
             twist_b();
             twist_b();
+            break;
+        case 'm':    //m - 前后中间层顺时针旋转90°
+            twist_m();
+            break;
+        case 'e':    //e - 水平中间层顺时针旋转90°
+            twist_e();
+            break;
+        case 's':    //s - 左右中间层顺时针旋转90°
+            twist_s();
             break;
     }
 }
