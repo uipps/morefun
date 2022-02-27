@@ -456,7 +456,8 @@ function out() {
 
 
 // 获取结果颜色字符串，各面按照order_str指定顺序，默认完好的顺序是 上、右、前、下、左、后： UUUUUUUUU RRRRRRRRR FFFFFFFFF DDDDDDDDD LLLLLLLLL BBBBBBBBB
-function getRltStr($mofun, $order_str, $kongge=1) {
+function getRltStr($mofun, $order_str, $kongge=1, $pglass_type=0, $pglass_color='') {
+    if ($pglass_type) return getPglassRltStr($mofun, $pglass_color);
     $order_arr = str_split($order_str);
 
     $color_face = [];                               // 一维数组
@@ -473,6 +474,43 @@ function getRltStr($mofun, $order_str, $kongge=1) {
     return $l_str;
 }
 
+/*
+    字符串顺序不一样
+>>> c = Cube("OOOOOOOOOYYYWWWGGGBBBYYYWWWGGGBBBYYYWWWGGGBBBRRRRRRRRR")
+>>> print(c)
+    OOO
+    OOO
+    OOO
+YYY WWW GGG BBB
+YYY WWW GGG BBB
+YYY WWW GGG BBB
+    RRR
+    RRR
+    RRR
+ */
+function getPglassRltStr($mofun, $pglass_color='') {
+    // 固定为上、左、前、右、后、下 。并且是线性从左到右、从上到下拼接到一起
+    // $order_str = 'ulfrbd';
+    $l_str = '';
+    $l_str .= implode($mofun['u'][0]) . implode($mofun['u'][1]) . implode($mofun['u'][2]);  // 上层
+    $l_str .= implode($mofun['l'][0]) . implode($mofun['f'][0]) . implode($mofun['r'][0]) . implode($mofun['b'][0]);
+    $l_str .= implode($mofun['l'][1]) . implode($mofun['f'][1]) . implode($mofun['r'][1]) . implode($mofun['b'][1]);
+    $l_str .= implode($mofun['l'][2]) . implode($mofun['f'][2]) . implode($mofun['r'][2]) . implode($mofun['b'][2]);
+    $l_str .= implode($mofun['d'][0]) . implode($mofun['d'][1]) . implode($mofun['d'][2]);  // 下层
+
+    if ($pglass_color) { // TODO {"r":"G","d":"R"}// 这样的必须先替换r，后替换d. 以后有时间了再折腾吧。
+        $orig_pglass_color = $pglass_color;
+        $big_pglass_color = strtoupper($orig_pglass_color);    // 键值都转成大写
+        // 进行颜色字符串替换
+        $pglass_color = json_decode($pglass_color, true);
+        $big_pglass_color = json_decode($big_pglass_color, true);
+        if ($pglass_color) {
+            $l_str = str_replace(array_keys($pglass_color), array_values($pglass_color), $l_str);
+            $l_str = str_replace(array_keys($big_pglass_color), array_values($big_pglass_color), $l_str);   // 大写key也替换一次
+        }
+    }
+    return $l_str;
+}
 
 // 通过字符串，分离出动作数组，目前支持常见的单字母和'或数字1/2/3的组合方式。有无空格均可
 function get_action_by_str($act_str, $alias_act=[], $type=0) {

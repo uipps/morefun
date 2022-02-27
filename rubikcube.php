@@ -1,12 +1,31 @@
 <?php
 /*
  输入转动步骤，得到字符串结果，
-    主要规则，通常单字母(U或U1)是顺时针，U2表示旋转180°，U3(或U')是逆时针；一个面的转动也就是这三种情况。
+    主要规则，通常单字母(U或U1)是顺时针，U2表示旋转180°，U3(Ui或U')是逆时针；一个面的转动也就是这三种情况。
+    https://ruwix.com/the-rubiks-cube/notation/ 有一些介绍
 
  php rubikcube.php -d "F R U R' U' F'"
  php rubikcube.php -d "R"
 
  php rubikcube.php -o "urfdlb" -d "F R U R' U' F'"  -- 指定排序，动作组合
+
+
+-- type参数，表示输出的结果参数，参考 https://github.com/pglass/cube ; F:\develope\python\game\mofang_rubikcube\cube_pglass_github\
+
+ php rubikcube.php -d "" -t pglass -c "{\"u\":\"O\",\"l\":\"Y\",\"f\":\"W\",\"r\":\"G\",\"b\":\"B\",\"d\":\"R\"}"
+ -- 得到的就是:OOOOOOOOOYYYWWWGGGBBBYYYWWWGGGBBBYYYWWWGGGBBBRRRRRRRRR
+
+>>> c = Cube("OOOOOOOOOYYYWWWGGGBBBYYYWWWGGGBBBYYYWWWGGGBBBRRRRRRRRR")
+>>> print(c)
+    OOO
+    OOO
+    OOO
+YYY WWW GGG BBB
+YYY WWW GGG BBB
+YYY WWW GGG BBB
+    RRR
+    RRR
+    RRR
 
  */
 //define('clockwise', 'clockwise');           // '顺时针'
@@ -14,7 +33,7 @@
 
 include_once 'morefun.php';
 
-$option = getopt('d:b:o:a:k:');
+$option = getopt('d:b:o:a:k:t:c:');
 main($option);
 
 
@@ -29,6 +48,15 @@ function main($o) {
 
     //   2) 结果顺序order参数, 主要是结果顺序
     $order_str = (isset($o['o']) && $o['o']) ? $o['o'] : 'urfdlb';
+
+    //
+    $order_type = (isset($o['t']) && $o['t']) ? $o['t'] : '';
+    $pglass_type = 0;
+    if ('pglass' == $order_type)
+        $pglass_type = 1;
+    $pglass_color = (isset($o['c']) && $o['c']) ? $o['c'] : '{"u":"O","l":"Y","f":"W","r":"G","b":"B","d":"R"}';
+
+
     //   3) 初始状态
     $begin_ob = (isset($o['b']) && $o['b']) ? $o['b'] : $GLOBALS['mofun'];
     //   4) 动作别名
@@ -49,7 +77,7 @@ function main($o) {
     }
 
     // 5. 按照order参数指定的顺序，输出各个面各块的颜色。
-    $l_str = getRltStr($GLOBALS['mofun'], $order_str, $kongge);
+    $l_str = getRltStr($GLOBALS['mofun'], $order_str, $kongge, $pglass_type, $pglass_color);
     echo $l_str . "\r\n";
 
     return '';
