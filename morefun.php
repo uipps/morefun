@@ -166,6 +166,37 @@ function twist_b() {
 //前面顺时针旋转90°
 function twist_f() {
     global $mofun;
+    // 1. 所转面，中心块没有动；其他8个都有变化。
+    $tmp1 = $mofun['f'][0][0];              // 原来 F1 位置
+    $mofun['f'][0][0] = $mofun['f'][2][0];  // F1 被 F7 替代
+    $mofun['f'][2][0] = $mofun['f'][2][2];  // F7 被 F9 替代
+    $mofun['f'][2][2] = $mofun['f'][0][2];  // F9 被 F3 替代
+    $mofun['f'][0][2] = $tmp1;              // F3 被 F1 替代
+
+    $tmp2 = $mofun['f'][0][1];              // 原来 F2 位置
+    $mofun['f'][0][1] = $mofun['f'][1][0];  // F2 被 F4 替代
+    $mofun['f'][1][0] = $mofun['f'][2][1];  // F4 被 F8 替代
+    $mofun['f'][2][1] = $mofun['f'][1][2];  // F8 被 F6 替代
+    $mofun['f'][1][2] = $tmp2;              // F6 被 F2 替代
+
+    // 2. 其他4个面的变化, 每个面3个小块发生变动
+    $tmp2 = $mofun['u'][2][0];              // 原来 U7 位置
+    $mofun['u'][2][0] = $mofun['l'][2][2];  // U7 被 L9 替代
+    $mofun['l'][2][2] = $mofun['d'][0][2];  // L9 被 D3 替代
+    $mofun['d'][0][2] = $mofun['r'][0][0];  // D3 被 R1 替代
+    $mofun['r'][0][0] = $tmp2;              // R1 被 U7 替代
+
+    $tmp1 = $mofun['u'][2][1];              // 原来 U8 位置
+    $mofun['u'][2][1] = $mofun['l'][1][2];  // U8 被 L6 替代
+    $mofun['l'][1][2] = $mofun['d'][0][1];  // L6 被 D2 替代
+    $mofun['d'][0][1] = $mofun['r'][1][0];  // D2 被 R4 替代
+    $mofun['r'][1][0] = $tmp1;              // R4 被 U8 替代
+
+    $tmp3 = $mofun['u'][2][2];              // 原来 U9 位置
+    $mofun['u'][2][2] = $mofun['l'][0][2];  // U9 被 L3 替代
+    $mofun['l'][0][2] = $mofun['d'][0][0];  // L3 被 D1 替代
+    $mofun['d'][0][0] = $mofun['r'][2][0];  // D1 被 R7 替代
+    $mofun['r'][2][0] = $tmp3;              // R7 被 U9 替代
 }
 
 //左面顺时针旋转90°
