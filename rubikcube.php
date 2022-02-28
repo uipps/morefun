@@ -5,14 +5,13 @@
 
  1. 输入转动步骤，得到字符串结果，
 
-    主要规则，通常单字母(U或U1)是顺时针，U2表示旋转180°，U3(Ui或U')是逆时针；一个面的转动也就是这三种情况。
+    主要规则，通常单字母(U或U1)是顺时针，U2表示旋转180°，U3(Ui或U')是逆时针；一个面的转动也就是这三种情况。  (Ui, inverted:反向的，倒转的)
     https://ruwix.com/the-rubiks-cube/notation/ 有一些介绍，本程序的顺逆只有M不同，其他顺逆都一致。
 
  php rubikcube.php -d "F R U R' U' F'"
  php rubikcube.php -d "R"
 
  php rubikcube.php -o "urfdlb" -d "F R U R' U' F'"  -- 指定排序，动作组合
-
 
 
 
@@ -33,13 +32,20 @@ YYY WWW GGG BBB
     RRR
     RRR
 
+
+ 3. TODO 输入所要得到的效果（初始状态为6面全好），限定多少步骤完成，用程序跑出所做的操作-多少种都列表出，(大写字母是顺时针，大写字母+'是逆时针)
+ php mofang_solve.php -t "" -n 6
+
+
+
  */
 //define('clockwise', 'clockwise');           // '顺时针'
 //define('anti-clockwise', 'anti-clockwise'); // '逆时针'
 
 include_once 'morefun.php';
 
-$option = getopt('d:b:o:a:k:t:c:');
+
+$option = getopt('d:b:o:a:k:t:c:g:');
 main($option);
 
 
@@ -69,8 +75,10 @@ function main($o) {
     $alias_arr = (isset($o['a']) && $o['a']) ? $o['a'] : [];
     //   5) 是否要空格
     $kongge = (isset($o['k']) && $o['k']) ? $o['k'] : 0;
+    //   6) 是否debug
+    $GLOBALS['debug'] = (isset($o['g']) && $o['g']) ? $o['g'] : 0;
 
-    // 2. 参数过滤，如果出现了不被识别的动作，过滤掉，并不给出提示。
+    // 2. 参数过滤，如果出现了不被识别的动作，过滤掉，并不给出提示。全部变成 F,F2,f
     $action_arr = get_action_by_str($str, $alias_arr);
 
     // 3. 初始状态：通常默认是完好的 $begin_ob，也可以参数指定

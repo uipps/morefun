@@ -49,7 +49,12 @@ $face_color = [];   // 默认就用U R F D L B 表示颜色好了。
 //$face_color = ['u' => 'y', 'd' => 'w', 'f' => 'b', 'b' => 'g', 'l' => 'o', 'r' => 'r'];
 
 
-$play_action9 = array_merge($rlt_str_face_order, []);  // 'm','s','e' 除了6个面，还有前后转动的中层M、左右转动的中层S、水平转动的中层E
+$play_action9 = array_merge($rlt_str_face_order, ['m','s','e']);  //  除了6个面，还有夹在左右之间的M层M、前后之间的S层、上下之间的水平层E
+
+// 定义逆操作字符, 当前就支持3个:i和'，如：Fi F' F`
+$inverse_str = ['i', "'", '`'];
+
+$GLOBALS['debug'] = 0;
 
 // 魔方对象，共6面，每面9块，共有54块，存储魔方各面颜色状态。初始就用
 $mofun = init_morefun($rlt_str_face_order, $face_color);    // 共26个元素，程序生成的跟上面一样，只是bl组合的顺序不一样。
@@ -391,62 +396,64 @@ function twist_e() {    // TODO 待验证正确性
 
 //魔方基本动作函数打包
 function twist_one($str) {
+    // 获取面
+
     switch ($str) {
-        case 'd':    //d - 底面顺时针旋转90°
+        case 'D':    //d - 底面顺时针旋转90°
             twist_d();
             break;
-        case 'D':    //D - 底面逆时针旋转90°
+        case 'd':    //D - 底面逆时针旋转90°
             twist_d();
             twist_d();
             twist_d();
             break;
-        case 'u':    //u - 顶面顺时针旋转90°
+        case 'U':    //u - 顶面顺时针旋转90°
             twist_u();
             break;
-        case 'U':    //U - 顶面逆时针旋转90°
+        case 'u':    //U - 顶面逆时针旋转90°
             twist_u();
             twist_u();
             twist_u();
             break;
-        case 'l':    //l - 左面顺时针旋转90°
+        case 'L':    //l - 左面顺时针旋转90°
             twist_l();
             break;
-        case 'L':    //L - 左面逆时针旋转90°
+        case 'l':    //L - 左面逆时针旋转90°
             twist_l();
             twist_l();
             twist_l();
             break;
-        case 'f':    //f - 前面顺时针旋转90°
+        case 'F':    //f - 前面顺时针旋转90°
             twist_f();
             break;
-        case 'F':    //F - 前面逆时针旋转90°
+        case 'f':    //F - 前面逆时针旋转90°
             twist_f();
             twist_f();
             twist_f();
             break;
-        case 'r':    //r - 右面顺时针旋转90°
+        case 'R':    //r - 右面顺时针旋转90°
             twist_r();
             break;
-        case 'R':    //R - 右面逆时针旋转90°
+        case 'r':    //R - 右面逆时针旋转90°
             twist_r();
             twist_r();
             twist_r();
             break;
-        case 'b':    //b - 后面顺时针旋转90°
+        case 'B':    //b - 后面顺时针旋转90°
             twist_b();
             break;
-        case 'B':    //B - 后面逆时针旋转90°
+        case 'b':    //B - 后面逆时针旋转90°
             twist_b();
             twist_b();
             twist_b();
             break;
-        case 'm':    //m - 前后中间层顺时针旋转90°
+        case 'M':    //m - 前后中间层顺时针旋转90°
             twist_m();
             break;
-        case 'e':    //e - 水平中间层顺时针旋转90°
+        case 'E':    //e - 水平中间层顺时针旋转90°
             twist_e();
             break;
-        case 's':    //s - 左右中间层顺时针旋转90°
+        case 'S':    //s - 左右中间层顺时针旋转90°
             twist_s();
             break;
     }
@@ -523,36 +530,244 @@ function getPglassRltStr($mofun, $pglass_color='') {
 }
 
 // 通过字符串，分离出动作数组，目前支持常见的单字母和'或数字1/2/3的组合方式。有无空格均可
+//    顺时针1圈： 90°，本程序用单个大写字母表示顺时针(U,U1,u,u1)，小写字母表示逆时针；
+//              有些网站，小写字母表示顺时针、大写字母表示逆时针；本程序用参数进行兼容
+//              常见表示方法：U,U1(数字1通常省略)
+//    顺或逆2圈：180°，顺时针或逆时针180°效果一样，本程序用数字下标2表示旋转180°，如U2，F2，也有网站写成2个字母 UU FF，本程序将同字母的多次操作进行合并，算作一次操作。
+//              常见表示方法：RR,R2
+//    顺时针3圈：270°，也就是逆时针1圈，U3(Ui或U')是逆时针；一个面的转动也就是这三种情况
+//              常见表示方法：FFF,F3,Fi,F',F`,f
+
 function get_action_by_str($act_str, $alias_act=[], $type=0) {
-    // F R U R' U' F' U3 U2 D1 等常见格式。
+    // F F1 FF F2 FFF F3 Fi F' F` f 常见旋转动作格式，
+    // 统一转换为: U,U2,u 这三种情况（分别对应：转1圈、转2圈、转3圈(逆时针1圈)，有时候需要把小写u转成U'都表示逆时针1圈）
+    // 共9个面(6面+3中间)，每个面3种转动，共27种转动动作。
     $l_arr = [];
 
     if (!$act_str) return [];   // 不操作直接返回
 
-    //   type=2:小写表示顺时针，大写字母表示逆时针;
-    //   type=3:小写表示逆时针，大写字母表示顺时针;
+    $orig_str = $act_str;   // 备份原字符串
+    echo date('Y-m-d H:i:s') . ' 需要执行的动作：' . $orig_str . "\r\n";
+
+    // 如果是type=2:小写表示顺时针，大写字母表示逆时针; 跟本程序恰好相反，只需要对大小写字母转换一下即可。
     if (2 == $type) {
-        // TODO
         // type=2:小写表示顺时针，大写字母表示逆时针;
-        return $l_arr;
-    }
-    if (3 == $type) {
-        // TODO
-        // type=3:小写表示逆时针，大写字母表示顺时针;
-        return $l_arr;
+        $act_str = lowUpStrToggle($act_str);
+
+        echo date('Y-m-d H:i:s') . '   小写表示顺时针，大写字母表示逆时针，因此需要转换一下。' . "\r\n";
+        echo date('Y-m-d H:i:s') . '   转换后的动作：' . $act_str . "\r\n";
     }
 
-    // 大部分地方魔方操作都没有采用大小写进行顺逆的表示。这里写一下大众情况
-    // 1. 有空格的情况，简单一点
-    if (false !== strpos($act_str, ' ')) {
-        $tmp_arr = explode(' ', $act_str);  // 逐行读取到数组
-        $l_arr = array_filter($tmp_arr);    // 过滤空元素
-        // TODO 参数过滤，如果出现了不被识别的动作，过滤掉，并不给出提示。
-        return $l_arr;
-    }
+    // $act_str无论有无空格，统一处理成没有空格的字符串
+    $act_str = str_replace(' ', '', $act_str);
 
-    // 无空格分隔的情况下, TODO
-    $tmp_arr = str_split($act_str); // 逐行读取到数组
-    $l_arr = $tmp_arr;
+    // 数字和逆操作符号转换成多个前置字符或大小写互换
+    $act_str = replace_num_inverse($act_str);   // 已经没有特殊字符和数字了，也没有不存在于9个操作中的动作了和其他符号了。
+
+    // 去掉一些无用的操作：转4圈、一正一反等等这些；简化一些操作：转3圈等于逆时针一圈。
+    $act_str = reduce_action($act_str);
+    // 实在不放心，可以再执行一次；确保没有3个相同字母相连的情况出现
+    $act_str = reduce_action($act_str); // php rubikcube.php -d "UUUuuUu" -g 1  所以还是需要再执行此步骤
+    if ($GLOBALS['debug']) echo '  经过压缩后：' . $act_str . "\r\n";
+
+    // 经过上面处理后，顶多2个相同字母大写字母相连,小写字母顶多2个字符
+
+    // 统一转换为：U,U2,u 这三种情况吧
+    $l_arr = statStrLength($act_str);
+
     return $l_arr;
+}
+
+//压缩指令数：1. 旋转4圈都相当于没有旋转； 2. 一正一反相当于没有旋转；3. 顺时针旋转3圈相当于逆时针旋转一圈;
+//  $min已经处理成全部9个动作内的字符了，无数字和特殊字符。
+function reduce_action($min) {
+    $l_arr = [
+        'uuuu','dddd','llll','ffff','rrrr','bbbb','mmmm','ssss','eeee',
+        'UUUU','DDDD','LLLL','FFFF','RRRR','BBBB','MMMM','SSSS','EEEE'
+    ];
+    $min = str_replace($l_arr, '', $min); // 转4圈就回到原来状态，等于没操作
+
+    // 顺时针3圈等于逆时针1圈；逆时针3圈等于顺时针1圈；
+    $l_arr = [
+        'uuu'   => 'U',
+        'ddd'   => 'D',
+        'lll'   => 'L',
+        'fff'   => 'F',
+        'rrr'   => 'R',
+        'bbb'   => 'B',
+        'mmm'   => 'M',
+        'sss'   => 'S',
+        'eee'   => 'E',
+    ];
+    $min = str_replace(array_keys($l_arr), array_values($l_arr), $min);
+    // ff这种2个小写字母将被替换成2个大写字母，都表示旋转180°，效果一样。
+    $l_arr = [
+        'uu'   => 'UU',
+        'dd'   => 'DD',
+        'll'   => 'LL',
+        'ff'   => 'FF',
+        'rr'   => 'RR',
+        'bb'   => 'BB',
+        'mm'   => 'MM',
+        'ss'   => 'SS',
+        'ee'   => 'EE',
+    ];
+    $min = str_replace(array_keys($l_arr), array_values($l_arr), $min);
+
+    $l_arr1 = [
+        'UUU'   => 'u',
+        'DDD'   => 'd',
+        'LLL'   => 'l',
+        'FFF'   => 'f',
+        'RRR'   => 'r',
+        'BBB'   => 'b',
+        'MMM'   => 'm',
+        'SSS'   => 's',
+        'EEE'   => 'e',
+    ];
+    $min = str_replace(array_keys($l_arr1), array_values($l_arr1), $min);
+
+    // 一正一反回到原来状态，等于没操作
+    $min = str_replace(['uU','Uu','dD','Dd','lL','Ll','fF','Ff','rR','Rr','bB','Bb','Mm','mM','Ss','sS','Ee','eE'], '', $min);
+
+    ////////// 经过上面的替换之后，已经不存在2个或超2个相同小写字母的片段，顶多1个小写字母的情况，大写字母最多只有2个相连的情况。
+
+    return $min;
+}
+
+// 不同形式表示的动作进行统一为动作加数字，常见旋转动作格式: F F1 FF F2 FFF F3 Fi F' f f1 ff f2 fff f3 fi f'
+function replace_num_inverse($str) {
+    $orig_stt = $str;
+
+    $l_act_str = implode('', $GLOBALS['play_action9']);
+
+    // 将双字符操作 Fi F' F` F0 F1 F2 F3 这些有特殊操作符号的替换为多个前置字母，
+    //   1. 先处理数字，后处理逆操作字符。将数字转换为多个前置字符，便于后面的字符串替换动作
+    //      所有超过10的数字都需要转成4以内的数字，一个面不能一次转10+圈，没意义 // php rubikcube.php -d "U12 b2 F8 l20 l10"
+    //preg_match_all('/([urfdlbmse](\d+))/i', $str, $matches);
+    preg_match_all('/(['. $l_act_str . '](\d+))/i', $str, $matches);
+    // 将超过4的数，全部替换为对4取模的数
+    if ($matches[1]) {
+        foreach ($matches[1] as $key => $l_str_num) {
+            $l_num = $matches[2][$key]; // 数字
+            //$l_mod = -1;
+            if ($l_num >= 4) {
+                $l_num = $l_num % 4;
+            }
+            if (0 == $l_num) {
+                $str = str_replace($l_str_num, '', $str);   // 如果数字是0，说明不需要此操作
+            } else if (1 == $l_num) {
+                $str = str_replace($l_str_num, substr($l_str_num,0,1), $str);
+            } else if (2 == $l_num) {
+                $letter = substr($l_str_num,0,1);
+                $str = str_replace($l_str_num, $letter . $letter, $str);
+            } else if (3 == $l_num) {
+                $letter = substr($l_str_num,0,1);
+                $str = str_replace($l_str_num, $letter . $letter . $letter, $str);
+            }
+        }
+    }
+    if ($GLOBALS['debug']) echo '  去掉数字后：' . $str . "\r\n";
+
+    //   2. 处理逆操作字符-双字符，单字符逆操作不用处理
+    $l_inverse_str = implode('', $GLOBALS['inverse_str']);
+    $l_inverse_str = str_replace("'", "\'", $l_inverse_str);
+    preg_match_all('/(['. $l_act_str . '])(['. $l_inverse_str .'])/i', $str, $matches);
+    if ($matches[1]) {
+        foreach ($matches[1] as $key => $l_str) {
+            // $str = str_replace($l_str_num, '', $str);   // 如果数字是0，说明不需要此操作
+            if (ctype_upper($l_str)) {
+                $str = str_replace($matches[0][$key], strtolower($l_str), $str);
+            } else {
+                $str = str_replace($matches[0][$key], strtoupper($l_str), $str);
+            }
+        }
+    }
+    if ($GLOBALS['debug']) echo '  去掉逆操作符号后：' . $str . "\r\n";
+
+    // 上面替换特殊字符和数字后，就全部变成了单字母，因此去掉那些非正常的动作字符
+    preg_match_all('/(['. $l_act_str . '])/i', $str, $matches);
+    if ($matches[1]) {
+        $l_str = '';
+        foreach ($matches[1] as $l_letter) {
+            $l_str .= $l_letter;
+        }
+        $str = $l_str;
+    }
+    if ($GLOBALS['debug']) echo '  经过去除数字和特殊字符处理后：' . $str . "\r\n";
+
+    return $str;
+}
+
+// 大小写字母切换，不是全部替换为大写或小写，而是大写变小写，小写变大写
+function lowUpStrToggle($str) {
+    $l_arr = str_split($str);
+
+    // $text = '2';var_dump(ctype_alpha($text));var_dump(ctype_lower($text));var_dump(ctype_upper($text)); 数字均是false
+    // ctype_alpha($text) 等同于 (ctype_upper($text) || ctype_lower($text))
+
+    // 逐个检查字符串，碰到字母类型的字符，将大写转小写，小写转大写
+    $l_rlt = '';
+    foreach ($l_arr as $text) {
+        if (ctype_upper($text)) {
+            $text = strtolower($text);
+        } else if (ctype_lower($text)) {
+            $text = strtoupper($text);
+        }
+        $l_rlt .= $text;
+    }
+    return $l_rlt;
+}
+
+// 逆时针表示法小写字母替换成大写字母加上'
+function replaceLowerStrTO($min) {
+    $l_arr = [
+        'u'   => "U'",
+        'd'   => "D'",
+        'l'   => "L'",
+        'f'   => "F'",
+        'r'   => "R'",
+        'b'   => "B'",
+        'm'   => "M'",
+        's'   => "S'",
+        'e'   => "E'",
+    ];
+    $min = str_replace(array_keys($l_arr), array_values($l_arr), $min);
+    return $min;
+}
+
+// 统计字符串中各个字母连续出现的次数，并记录到数组，如果出现小写字母超过2个连续，大写字母超过3个连续的需要报错并退出。
+function statStrLength($str) {
+    $l_arr = str_split($str);
+    $l_rlt = [];
+
+    $last_str = '';
+    $last_num = 0;
+    foreach ($l_arr as $key => $l_val) {
+        if ($last_str != $l_val) {
+            if ($key > 0) {
+                // 记录上一个字母及其连续相连出现的个数
+                if ($last_num > 1)
+                    $l_rlt[] = $last_str . $last_num;
+                else
+                    $l_rlt[] = $last_str;
+            }
+
+            // 下一个新字母开始
+            $last_str = $l_val;
+            $last_num = 1;  // 重新开始计数
+        } else {
+            // 数量加1
+            $last_num++;
+        }
+    }
+    // 最后一个字母需要记录
+    if ($last_str) {
+        if ($last_num > 1)
+            $l_rlt[] = $last_str . $last_num;
+        else
+            $l_rlt[] = $last_str;
+    }
+
+    return $l_rlt;
 }
