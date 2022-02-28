@@ -76,7 +76,7 @@ function main($o) {
     //   5) 是否要空格
     $kongge = (isset($o['k']) && $o['k']) ? $o['k'] : 0;
     //   6) 是否debug
-    $GLOBALS['debug'] = (isset($o['g']) && $o['g']) ? $o['g'] : 0;
+    $GLOBALS['debug'] = (isset($o['g']) && $o['g']) ? $o['g'] : 1;
 
     // 2. 参数过滤，如果出现了不被识别的动作，过滤掉，并不给出提示。全部变成 F,F2,f
     $action_arr = get_action_by_str($str, $alias_arr);

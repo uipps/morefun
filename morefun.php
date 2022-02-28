@@ -54,7 +54,7 @@ $play_action9 = array_merge($rlt_str_face_order, ['m','s','e']);  //  除了6个
 // 定义逆操作字符, 当前就支持3个:i和'，如：Fi F' F`
 $inverse_str = ['i', "'", '`'];
 
-$GLOBALS['debug'] = 0;
+$GLOBALS['debug'] = 1;
 
 // 魔方对象，共6面，每面9块，共有54块，存储魔方各面颜色状态。初始就用
 $mofun = init_morefun($rlt_str_face_order, $face_color);    // 共26个元素，程序生成的跟上面一样，只是bl组合的顺序不一样。
@@ -103,7 +103,7 @@ function getSort($str) {
 
 //除了3个中间层，其他6个层每层的旋转都是4个棱块和4个角块替换
 //右面顺时针旋转90°，只需要三维数组的相关节点的替换表示出来即可。
-function twist_r() {
+function twist_R() {
     global $mofun;
     // 涉及到5个大面-20个小颜色面块的变化，除了对面(l左面没有变化)，每个面都需要进行一些变换。
     // 1. 4个面的变化
@@ -141,7 +141,7 @@ function twist_r() {
 }
 
 //后面顺时针旋转90°,
-function twist_b() {
+function twist_B() {
     global $mofun;
     // 涉及到5个大面-20个小颜色面块的变化，除了对面(f前面没有变化)，每个面都需要进行一些变换。
     // 1. 所转面（后），中心块没有动；其他8个都有变化。
@@ -178,7 +178,7 @@ function twist_b() {
 }
 
 //前面顺时针旋转90°
-function twist_f() {
+function twist_F() {
     global $mofun;
     // 1. 所转面，中心块没有动；其他8个都有变化。
     $tmp1 = $mofun['f'][0][0];              // 原来 F1 位置
@@ -214,7 +214,7 @@ function twist_f() {
 }
 
 //左面顺时针旋转90°
-function twist_l() {
+function twist_L() {
     global $mofun;
     // 1. 所转面，中心块没有动；其他8个都有变化。
     $tmp1 = $mofun['l'][0][0];              // 原来 L1 位置
@@ -250,7 +250,7 @@ function twist_l() {
 }
 
 //顶面顺时针旋转90°
-function twist_u() {
+function twist_U() {
     global $mofun;
     // 1. 所转面，中心块没有动；其他8个都有变化。
     $tmp1 = $mofun['u'][0][0];              // 原来 U1 位置
@@ -286,7 +286,7 @@ function twist_u() {
 }
 
 //底面顺时针旋转90°
-function twist_d() {
+function twist_D() {
     global $mofun;
     // 1. 所转面，中心块没有动；其他8个都有变化。
     $tmp1 = $mofun['d'][0][0];              // 原来 D1 位置
@@ -324,7 +324,7 @@ function twist_d() {
 
 //前后中间层顺时针旋转90°（yz轴，x-0）。M是夹在左右之间。// 从操作的便捷性来说，前后中间层可以用一下，而水平和左右中间层用的很少，后2个先不实现。
 //  参考 https://ruwix.com/the-rubiks-cube/notation/ 或 https://github.com/Renovamen/Just-a-Cube
-function twist_m() {    // TODO 待验证正确性
+function twist_M() {    // TODO 待验证正确性
     global $mofun;
     // 左右两面均没有变化，只有yz轴12个色块调换位置
     $tmp1 = $mofun['u'][0][1];              // 原来 U2 位置
@@ -347,7 +347,7 @@ function twist_m() {    // TODO 待验证正确性
 }
 
 //左右中间层顺时针旋转90°（xy轴，z-0）S是夹在前后之间。
-function twist_s() {    // TODO 待验证正确性
+function twist_S() {    // TODO 待验证正确性
     global $mofun;
     // 前后两面均没有变化，只有xy轴12个色块调换位置
     $tmp1 = $mofun['u'][1][0];              // 原来 U4 位置
@@ -370,7 +370,7 @@ function twist_s() {    // TODO 待验证正确性
 }
 
 //水平中间层顺时针旋转90°（xz轴，y-0）E是夹在上下之间。
-function twist_e() {    // TODO 待验证正确性
+function twist_E() {    // TODO 待验证正确性
     global $mofun;
     // 上下两面均没有变化，只有xz轴12个色块调换位置
     $tmp1 = $mofun['f'][1][0];              // 原来 F4 位置
@@ -396,8 +396,37 @@ function twist_e() {    // TODO 待验证正确性
 
 //魔方基本动作函数打包
 function twist_one($str) {
-    // 获取面
+    // 每个面最多有U,U2,u三种指令：（顺时针1圈、2圈、3圈(即逆时针1圈)），而且全部转换成了这种统一的规范字符形式
 
+    $act_letter = substr($str, 0, 1);
+    $str = str_replace('1', '', $str);  // 去掉数字1，其实这里可以不用替换
+
+    if (!in_array(strtolower($act_letter), $GLOBALS['play_action9'])) {exit(' action error' . $str);}
+
+    $l_func = 'twist_' . strtoupper($act_letter);   // twist_U
+    $strLen = strlen($str); // 2个字符就表示有数字
+    if ($strLen > 1) {
+        if (ctype_lower($act_letter)) {exit(' lower error' . $act_letter);} // 应该不会出现小写字母逆时针转几圈的情况
+
+        $l_num = substr($str, 1);   //
+        if (!is_numeric($l_num)) {exit(' num error' . $l_num);}
+        $l_num = $l_num + 0;    // 强制转数字
+        for ($i = 0; $i < $l_num; $i++) {
+            $l_func();
+        }
+    } else {
+        // 单字母，无数字的情况
+        if (ctype_lower($act_letter)) {
+            // 小写字母表示需要逆时针旋转，也就是顺时针转3圈
+            $l_func();
+            $l_func();
+            $l_func();
+        } else {
+            $l_func();
+        }
+    }
+
+    /*
     switch ($str) {
         case 'D':    //d - 底面顺时针旋转90°
             twist_d();
@@ -457,6 +486,7 @@ function twist_one($str) {
             twist_s();
             break;
     }
+    */
 }
 
 //魔方组合动作
@@ -574,6 +604,7 @@ function get_action_by_str($act_str, $alias_act=[], $type=0) {
 
     // 统一转换为：U,U2,u 这三种情况吧
     $l_arr = statStrLength($act_str);
+    if ($GLOBALS['debug']) echo '  统一转换成3种指令后：' . implode(' ', $l_arr) . "\r\n";
 
     return $l_arr;
 }
@@ -759,6 +790,16 @@ function statStrLength($str) {
         } else {
             // 数量加1
             $last_num++;
+
+            // 仅仅是用于验证的，正常来说不会出现下面的这些情况
+            if (ctype_lower($last_str) && $last_num > 1) {
+                echo '   出现了2个小写字母相连的情况！请排查问题' . "\r\n";
+                exit;
+            }
+            if (ctype_upper($last_str) && $last_num > 2) {
+                echo '   出现了3个大写字母相连的情况！请排查问题' . "\r\n";
+                exit;
+            }
         }
     }
     // 最后一个字母需要记录
