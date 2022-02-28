@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  6个面顺序参考： F:/develope/python/game/mofang_rubikcube/rubiksCube_AlphaZero 的enums.py中的图案,
      (git@github.com:uipps/AI_AlphaZero.git 的 rubiksCube分支)
 
@@ -25,6 +25,15 @@ The names of the facelet positions of the cube (letters stand for Up, Left, Fron
              |************|
              |*D7**D8**D9*|
              |************|
+
+
+-- 补充:
+  顺时针、逆时针如何判断？本程序遵从右手习惯，关于M/S/E各网站均不统一。
+      -- 除了L层是按照左手的顺逆，其他所有层都按照右手的顺逆（E右手手心向上，顺逆同D）
+
+  Middle(M):   The layer between L and R | M 左右之间的中间层，右手旋转，同右面顺逆，因从右往左看判断顺时针、逆时针，类似右
+  Standing(S): The layer between F and B | S 前后之间的中间层，右手旋转，同前面顺逆，因从前往后看判断顺时针、逆时针，类似前
+  Equator(E):  The layer between U and D | E 上下之间的中间层，右手旋转，同下面顺逆，因从下往上看判断顺时针、逆时针，类似下，（水平方向）
 
 
  */
@@ -308,7 +317,8 @@ function twist_d() {
 }
 
 
-//前后中间层顺时针旋转90°（yz轴，x-0）。// 从操作的便捷性来说，前后中间层可以用一下，而水平和左右中间层用的很少，后2个先不实现。
+//前后中间层顺时针旋转90°（yz轴，x-0）。M是夹在左右之间。// 从操作的便捷性来说，前后中间层可以用一下，而水平和左右中间层用的很少，后2个先不实现。
+//  参考 https://ruwix.com/the-rubiks-cube/notation/ 或 https://github.com/Renovamen/Just-a-Cube
 function twist_m() {    // TODO 待验证正确性
     global $mofun;
     // 左右两面均没有变化，只有yz轴12个色块调换位置
@@ -331,7 +341,7 @@ function twist_m() {    // TODO 待验证正确性
     $mofun['b'][0][1] = $tmp3;              // B2 被 U8 替代
 }
 
-//左右中间层顺时针旋转90°（xy轴，z-0）
+//左右中间层顺时针旋转90°（xy轴，z-0）S是夹在前后之间。
 function twist_s() {    // TODO 待验证正确性
     global $mofun;
     // 前后两面均没有变化，只有xy轴12个色块调换位置
@@ -354,7 +364,7 @@ function twist_s() {    // TODO 待验证正确性
     $mofun['r'][2][1] = $tmp3;              // R8 被 U6 替代
 }
 
-//水平中间层顺时针旋转90°（xz轴，y-0）
+//水平中间层顺时针旋转90°（xz轴，y-0）E是夹在上下之间。
 function twist_e() {    // TODO 待验证正确性
     global $mofun;
     // 上下两面均没有变化，只有xz轴12个色块调换位置

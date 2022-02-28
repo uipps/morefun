@@ -1,8 +1,12 @@
 <?php
 /*
- 输入转动步骤，得到字符串结果，
+ 顺时针、逆时针如何判断？ 本程序遵从右手习惯，关于M/S/E各网站均不统一。
+    -- 除了L层是按照左手的顺逆，其他所有层都按照右手的顺逆（E右手手心向上，顺逆同D）。
+
+ 1. 输入转动步骤，得到字符串结果，
+
     主要规则，通常单字母(U或U1)是顺时针，U2表示旋转180°，U3(Ui或U')是逆时针；一个面的转动也就是这三种情况。
-    https://ruwix.com/the-rubiks-cube/notation/ 有一些介绍
+    https://ruwix.com/the-rubiks-cube/notation/ 有一些介绍，本程序的顺逆只有M不同，其他顺逆都一致。
 
  php rubikcube.php -d "F R U R' U' F'"
  php rubikcube.php -d "R"
@@ -10,11 +14,13 @@
  php rubikcube.php -o "urfdlb" -d "F R U R' U' F'"  -- 指定排序，动作组合
 
 
--- type参数，表示输出的结果参数，参考 https://github.com/pglass/cube ; F:\develope\python\game\mofang_rubikcube\cube_pglass_github\
 
+
+ 2. 其他组织方式输出:
  php rubikcube.php -d "" -t pglass -c "{\"u\":\"O\",\"l\":\"Y\",\"f\":\"W\",\"r\":\"G\",\"b\":\"B\",\"d\":\"R\"}"
  -- 得到的就是:OOOOOOOOOYYYWWWGGGBBBYYYWWWGGGBBBYYYWWWGGGBBBRRRRRRRRR
 
+-- type参数，表示输出的结果参数，参考 https://github.com/pglass/cube ; F:\develope\python\game\mofang_rubikcube\cube_pglass_github\
 >>> c = Cube("OOOOOOOOOYYYWWWGGGBBBYYYWWWGGGBBBYYYWWWGGGBBBRRRRRRRRR")
 >>> print(c)
     OOO
