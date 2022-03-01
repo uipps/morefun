@@ -135,11 +135,12 @@ function main($o) {
     $pglass_color = (isset($o['c']) && $o['c']) ? $o['c'] : '{"u":"O","l":"Y","f":"W","r":"G","b":"B","d":"R"}';
 
     // 魔方对象，共6面，每面9块，共有54块，存储魔方各面颜色状态。初始就用
-    $GLOBALS['mofun'] = init_morefun($GLOBALS['kociemba_face_order']); // 共26个元素，程序生成的跟上面一样，只是bl组合的顺序不一样。
+    $mofun_init = init_morefun($GLOBALS['kociemba_face_order']); // 共26个元素，程序生成的跟上面一样，只是bl组合的顺序不一样。
 
+    $mofang_obj = $mofun_init;
 
     //   3) 初始状态，可以用x表示不关心的块位置
-    $begin_ob = (isset($o['b']) && $o['b']) ? $o['b'] : $GLOBALS['mofun'];
+    $begin_ob = (isset($o['b']) && $o['b']) ? $o['b'] : $mofun_init;
     //   4) 动作别名
     $alias_arr = (isset($o['a']) && $o['a']) ? $o['a'] : [];
     //   5) 是否要空格
@@ -164,13 +165,13 @@ function main($o) {
     // 4. 逐个动作执行，也可以是空动作，不进行twist旋转操作
     if ($action_arr) {
         // print_r($action_arr);
-        twist_multi($action_arr);
+        twist_multi($mofang_obj, $action_arr);
     }
-    //if ($GLOBALS['debug']) echo ' after "' . $str .'" , $mofun: ' . "\r\n"; print_r($GLOBALS['mofun']);
+    //if ($GLOBALS['debug']) echo ' after "' . $str .'" , $mofun: ' . "\r\n"; print_r($mofang_obj);
 
     // 5. 按照order参数指定的顺序，输出各个面各块的颜色。
     if ($pglass_type) {
-        $l_str = getPglassRltStr($GLOBALS['mofun'], $pglass_color);
+        $l_str = getPglassRltStr($mofang_obj, $pglass_color);
     } else if (isset($o['f']) && $o['f']) {
         // -b "ddd" -f 1 -o ulfrbd
         // format 字符串为, 格式化输出
@@ -180,12 +181,12 @@ function main($o) {
         //else if (isset($o['e']) && $o['e'])
         //    $l_str = getRltStr($end_ob, $order_str, $kongge);
         else
-            $l_str = getRltStr($GLOBALS['mofun'], $order_str, $kongge);
+            $l_str = getRltStr($mofang_obj, $order_str, $kongge);
     } else
-        $l_str = getRltStr($GLOBALS['mofun'], $order_str, $kongge);
+        $l_str = getRltStr($mofang_obj, $order_str, $kongge);
 
     echo $l_str . "\r\n";
-    echo "    对应的图形展示：\r\n" . getGraghOfMoFang($GLOBALS['mofun']) . "\r\n";
+    if ($GLOBALS['debug']) echo "    对应的图形展示：\r\n" . getGraghOfMoFang($mofang_obj) . "\r\n";
 
     return '';
 }

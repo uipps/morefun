@@ -101,8 +101,7 @@ function init_morefun($face6_arr) {
 
 //除了3个中间层，其他6个层每层的旋转都是4个棱块和4个角块替换
 //右面顺时针旋转90°，只需要三维数组的相关节点的替换表示出来即可。
-function twist_R() {
-    global $mofun;
+function twist_R(&$mofun) {
     //if ($GLOBALS['debug']) echo ' before ' . __FUNCTION__ . ', $mofun: ' . "\r\n"; print_r($mofun);
     // 涉及到5个大面-20个小颜色面块的变化，除了对面(l左面没有变化)，每个面都需要进行一些变换。
     // 1. 4个面的变化
@@ -140,8 +139,7 @@ function twist_R() {
 }
 
 //后面顺时针旋转90°,
-function twist_B() {
-    global $mofun;
+function twist_B(&$mofun) {
     // 涉及到5个大面-20个小颜色面块的变化，除了对面(f前面没有变化)，每个面都需要进行一些变换。
     // 1. 所转面（后），中心块没有动；其他8个都有变化。
     $tmp1 = $mofun['b'][0][0];              // 原来 B1 位置
@@ -177,8 +175,7 @@ function twist_B() {
 }
 
 //前面顺时针旋转90°
-function twist_F() {
-    global $mofun;
+function twist_F(&$mofun) {
     // 1. 所转面，中心块没有动；其他8个都有变化。
     $tmp1 = $mofun['f'][0][0];              // 原来 F1 位置
     $mofun['f'][0][0] = $mofun['f'][2][0];  // F1 被 F7 替代
@@ -213,8 +210,7 @@ function twist_F() {
 }
 
 //左面顺时针旋转90°
-function twist_L() {
-    global $mofun;
+function twist_L(&$mofun) {
     // 1. 所转面，中心块没有动；其他8个都有变化。
     $tmp1 = $mofun['l'][0][0];              // 原来 L1 位置
     $mofun['l'][0][0] = $mofun['l'][2][0];  // L1 被 L7 替代
@@ -249,8 +245,7 @@ function twist_L() {
 }
 
 //顶面顺时针旋转90°
-function twist_U() {
-    global $mofun;
+function twist_U(&$mofun) {
     // 1. 所转面，中心块没有动；其他8个都有变化。
     $tmp1 = $mofun['u'][0][0];              // 原来 U1 位置
     $mofun['u'][0][0] = $mofun['u'][2][0];  // U1 被 U7 替代
@@ -285,8 +280,7 @@ function twist_U() {
 }
 
 //底面顺时针旋转90°
-function twist_D() {
-    global $mofun;
+function twist_D(&$mofun) {
     // 1. 所转面，中心块没有动；其他8个都有变化。
     $tmp1 = $mofun['d'][0][0];              // 原来 D1 位置
     $mofun['d'][0][0] = $mofun['d'][2][0];  // D1 被 D7 替代
@@ -323,8 +317,7 @@ function twist_D() {
 
 //前后中间层顺时针旋转90°（yz轴，x-0）。M是夹在左右之间。// 从操作的便捷性来说，前后中间层可以用一下，而水平和左右中间层用的很少，后2个先不实现。
 //  参考 https://ruwix.com/the-rubiks-cube/notation/ 或 https://github.com/Renovamen/Just-a-Cube
-function twist_M() {    // TODO 待验证正确性
-    global $mofun;
+function twist_M(&$mofun) {    // TODO 待验证正确性
     // 左右两面均没有变化，只有yz轴12个色块调换位置
     $tmp1 = $mofun['u'][0][1];              // 原来 U2 位置
     $mofun['u'][0][1] = $mofun['f'][0][1];  // U2 被 F2 替代
@@ -346,8 +339,7 @@ function twist_M() {    // TODO 待验证正确性
 }
 
 //左右中间层顺时针旋转90°（xy轴，z-0）S是夹在前后之间。
-function twist_S() {    // TODO 待验证正确性
-    global $mofun;
+function twist_S(&$mofun) {    // TODO 待验证正确性
     // 前后两面均没有变化，只有xy轴12个色块调换位置
     $tmp1 = $mofun['u'][1][0];              // 原来 U4 位置
     $mofun['u'][1][0] = $mofun['l'][2][1];  // U4 被 L8 替代
@@ -369,8 +361,7 @@ function twist_S() {    // TODO 待验证正确性
 }
 
 //水平中间层顺时针旋转90°（xz轴，y-0）E是夹在上下之间。
-function twist_E() {    // TODO 待验证正确性
-    global $mofun;
+function twist_E(&$mofun) {    // TODO 待验证正确性
     // 上下两面均没有变化，只有xz轴12个色块调换位置
     $tmp1 = $mofun['f'][1][0];              // 原来 F4 位置
     $mofun['f'][1][0] = $mofun['l'][1][0];  // F4 被 L4 替代
@@ -394,7 +385,7 @@ function twist_E() {    // TODO 待验证正确性
 
 
 //魔方基本动作函数打包
-function twist_one($str) {
+function twist_one(&$mofun, $str) {
     // 目前测试 -d "R B U" 是正确的， (ailearn_py37) F:\develope\python\game\mofang_rubikcube\rubiksCube_AlphaZero>python main.py -d "R B U"
     //   -d "R B" 是正确的，但是换一下顺序-d "B R"就不正确了。
     //  RF得到的就能解出，但是FR就不对；
@@ -416,17 +407,17 @@ function twist_one($str) {
         if (!is_numeric($l_num)) {exit(' num error' . $l_num);}
         $l_num = $l_num + 0;    // 强制转数字
         for ($i = 0; $i < $l_num; $i++) {
-            $l_func();
+            $l_func($mofun);
         }
     } else {
         // 单字母，无数字的情况
         if (ctype_lower($act_letter)) {
             // 小写字母表示需要逆时针旋转，也就是顺时针转3圈
-            $l_func();
-            $l_func();
-            $l_func();
+            $l_func($mofun);
+            $l_func($mofun);
+            $l_func($mofun);
         } else {
-            $l_func();
+            $l_func($mofun);
         }
     }
 
@@ -494,17 +485,11 @@ function twist_one($str) {
 }
 
 //魔方组合动作
-function twist_multi($com) {
+function twist_multi(&$mofun, $com) {
     for ($i = 0; $i < count($com); $i++) {
-        twist_one($com[$i]);
+        twist_one($mofun, $com[$i]);
     }
 }
-
-//输出魔方状态
-function out() {
-    return $GLOBALS['mofun'];
-}
-
 
 // 获取结果颜色字符串，各面按照order_str指定顺序，默认完好的顺序是 上、右、前、下、左、后： UUUUUUUUU RRRRRRRRR FFFFFFFFF DDDDDDDDD LLLLLLLLL BBBBBBBBB
 function getRltStr($mofun, $order_str, $kongge=1) {
