@@ -39,33 +39,31 @@ The names of the facelet positions of the cube (letters stand for Up, Left, Fron
  */
 
 // 定义6个面的结果字符串“面”顺序；默认完好的顺序是 上、右、前、下、左、后： UUUUUUUUU RRRRRRRRR FFFFFFFFF DDDDDDDDD LLLLLLLLL BBBBBBBBB
-$rlt_str_face_order = ['u', 'r', 'f', 'd', 'l', 'b'];  // 6个面字符串顺序, 就用小写
-$rlt_str_face_order = ['d', 'u', 'l', 'f', 'r', 'b'];
+$kociemba_face_order = ['u', 'r', 'f', 'd', 'l', 'b'];   // python kociemba 所用 6个面字符串顺序, 就用小写，这个是某些python程序用到的顺序
+//$kociemba_face_order = ['u', 'l', 'f', 'r', 'b', 'd'];
+
+//define('human_habit_order', ['u', 'l', 'f', 'r', 'b', 'd']);    // 符合人们看图习惯的顺序：Up, Left, Front, Right, Back, and Down 正是上图顺序
 
 
-// 定义6个面的颜色，通常是：上黄下白，前蓝后绿，左橙右红。用于拼装初始魔方状态
-$face_color = [];   // 默认就用U R F D L B 表示颜色好了。
+// 定义6个面的颜色，通常是：上黄下白，前蓝后绿，左橙右红。用于拼装初始魔方状态 ; 无需颜色，颜色只在最后字符串中进行替换即可。
+//$face_color = [];   // 默认就用U R F D L B 表示颜色好了。
 //  上黄-yellow 下白-white 前蓝-blue 后绿-green 左橙-orange 右红-red
 //$face_color = ['u' => 'y', 'd' => 'w', 'f' => 'b', 'b' => 'g', 'l' => 'o', 'r' => 'r'];
 
 
-$play_action9 = array_merge($rlt_str_face_order, ['m','s','e']);  //  除了6个面，还有夹在左右之间的M层M、前后之间的S层、上下之间的水平层E
+$play_action9 = array_merge($kociemba_face_order, ['m','s','e']);  //  除了6个面，还有夹在左右之间的M层M、前后之间的S层、上下之间的水平层E
 
 // 定义逆操作字符, 当前就支持3个:i和'，如：Fi F' F`
 $inverse_str = ['i', "'", '`'];
 
-$GLOBALS['debug'] = 1;
-
-// 魔方对象，共6面，每面9块，共有54块，存储魔方各面颜色状态。初始就用
-$mofun = init_morefun($rlt_str_face_order, $face_color);    // 共26个元素，程序生成的跟上面一样，只是bl组合的顺序不一样。
 
 // 初始魔方状态, 三维数组
-function init_morefun($face6_arr, $face_color = []) {
+function init_morefun($face6_arr) {
     $l_arr = [];
     // 6个面
     foreach ($face6_arr as $letter_1) {
         $l_color = [];
-        $one_c = isset($face_color[$letter_1]) ? $face_color[$letter_1] : strtoupper($letter_1);
+        $one_c = strtoupper($letter_1);
         $l_color[] = [$one_c, $one_c, $one_c];  // 第1行3个元素
         $l_color[] = [$one_c, $one_c, $one_c];  // 第2行3个元素
         $l_color[] = [$one_c, $one_c, $one_c];  // 第3行3个元素
@@ -76,26 +74,26 @@ function init_morefun($face6_arr, $face_color = []) {
 
 /**************************** 需要用到的方法 ******************************/
 // 定义排序函数，用于字符串排序
-function compareStr($a, $b) {
-    $a = trim($a);
-    $b = trim($b);
-    $face_sort = $GLOBALS['rlt_str_face_order']; // 字母必须在这些指定的字母中
-    $face_flip = array_flip($face_sort);         // 键值互换
-    if (!in_array($a, $face_sort) || !in_array($b, $face_sort)) {
-        exit($a . ' or ' . $b . ' not in face_sort!');
-    }
-    // if ($face_flip[$a] == $face_flip[$b]) return 0; 此行可以去掉
-    return ($face_flip[$a] > $face_flip[$b]) ? 1 : -1;  // 升序:由小到大
-    //return ($face_flip[$a] > $face_flip[$b]) ? -1 : 1;  // 这是降序:由大到小
-}
+//function compareStr($a, $b) {
+//    $a = trim($a);
+//    $b = trim($b);
+//    $face_sort = $GLOBALS['kociemba_face_order']; // 字母必须在这些指定的字母中
+//    $face_flip = array_flip($face_sort);         // 键值互换
+//    if (!in_array($a, $face_sort) || !in_array($b, $face_sort)) {
+//        exit($a . ' or ' . $b . ' not in face_sort!');
+//    }
+//    // if ($face_flip[$a] == $face_flip[$b]) return 0; 此行可以去掉
+//    return ($face_flip[$a] > $face_flip[$b]) ? 1 : -1;  // 升序:由小到大
+//    //return ($face_flip[$a] > $face_flip[$b]) ? -1 : 1;  // 这是降序:由大到小
+//}
 
 // 对字符串排序，例如角块Key的字母顺序。可应用于二维数组
-function getSort($str) {
-    $arr = str_split($str); // 字符串映射为一维数组
-    uasort($arr, 'compareStr'); // 排序后
-    $str = implode('', $arr);   // 转成字符串
-    return $str;
-}
+//function getSort($str) {
+//    $arr = str_split($str); // 字符串映射为一维数组
+//    uasort($arr, 'compareStr'); // 排序后
+//    $str = implode('', $arr);   // 转成字符串
+//    return $str;
+//}
 
 
 /**************************** 魔方基本动作 ******************************/
@@ -509,8 +507,7 @@ function out() {
 
 
 // 获取结果颜色字符串，各面按照order_str指定顺序，默认完好的顺序是 上、右、前、下、左、后： UUUUUUUUU RRRRRRRRR FFFFFFFFF DDDDDDDDD LLLLLLLLL BBBBBBBBB
-function getRltStr($mofun, $order_str, $kongge=1, $pglass_type=0, $pglass_color='') {
-    if ($pglass_type) return getPglassRltStr($mofun, $pglass_color);
+function getRltStr($mofun, $order_str, $kongge=1) {
     $order_arr = str_split($order_str);
 
     $color_face = [];                               // 一维数组
@@ -543,7 +540,6 @@ YYY WWW GGG BBB
  */
 function getPglassRltStr($mofun, $pglass_color='') {
     // 固定为上、左、前、右、后、下 。并且是线性从左到右、从上到下拼接到一起
-    // $order_str = 'ulfrbd';
     $l_str = '';
     $l_str .= implode($mofun['u'][0]) . implode($mofun['u'][1]) . implode($mofun['u'][2]);  // 上层
     $l_str .= implode($mofun['l'][0]) . implode($mofun['f'][0]) . implode($mofun['r'][0]) . implode($mofun['b'][0]);
@@ -771,6 +767,34 @@ function replaceLowerStrTO($min) {
     ];
     $min = str_replace(array_keys($l_arr), array_values($l_arr), $min);
     return $min;
+}
+
+// 将魔方按照如下图形输出
+function getGraghOfMoFang($mofun) {
+//    $l_template =   "    {}{}{}\n" .
+//                    "    {}{}{}\n" .
+//                    "    {}{}{}\n" .
+//                    "{}{}{} {}{}{} {}{}{} {}{}{}\n" .
+//                    "{}{}{} {}{}{} {}{}{} {}{}{}\n" .
+//                    "{}{}{} {}{}{} {}{}{} {}{}{}\n" .
+//                    "    {}{}{}\n" .
+//                    "    {}{}{}\n" .
+//                    "    {}{}{}\n";
+    $l_str = '';
+
+    $l_str .= '    ' . implode($mofun['u'][0]) . "\n"; // 第1行3个元素
+    $l_str .= '    ' . implode($mofun['u'][1]) . "\n"; // 第2行3个元素
+    $l_str .= '    ' . implode($mofun['u'][2]) . "\n"; // 第3行3个元素
+
+    $l_str .= implode($mofun['l'][0]) . ' ' . implode($mofun['f'][0]) . ' ' . implode($mofun['r'][0]) . ' ' . implode($mofun['b'][0]) . "\n"; // 第1行4个面12个元素
+    $l_str .= implode($mofun['l'][1]) . ' ' . implode($mofun['f'][1]) . ' ' . implode($mofun['r'][1]) . ' ' . implode($mofun['b'][1]) . "\n"; // 第2行4个面12个元素
+    $l_str .= implode($mofun['l'][2]) . ' ' . implode($mofun['f'][2]) . ' ' . implode($mofun['r'][2]) . ' ' . implode($mofun['b'][2]) . "\n"; // 第3行4个面12个元素
+
+    $l_str .= '    ' . implode($mofun['d'][0]) . "\n"; // 第1行3个元素
+    $l_str .= '    ' . implode($mofun['d'][1]) . "\n"; // 第2行3个元素
+    $l_str .= '    ' . implode($mofun['d'][2]) . "\n"; // 第3行3个元素
+
+    return $l_str;
 }
 
 // 统计字符串中各个字母连续出现的次数，并记录到数组，如果出现小写字母超过2个连续，大写字母超过3个连续的需要报错并退出。
