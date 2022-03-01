@@ -222,11 +222,11 @@ function twist_L() {
     $mofun['l'][0][0] = $mofun['l'][2][0];  // L1 被 L7 替代
     $mofun['l'][2][0] = $mofun['l'][2][2];  // L7 被 L9 替代
     $mofun['l'][2][2] = $mofun['l'][0][2];  // L9 被 L3 替代
-    $mofun['l'][0][0] = $tmp1;              // L3 被 L1 替代
+    $mofun['l'][0][2] = $tmp1;              // L3 被 L1 替代
 
     $tmp2 = $mofun['l'][0][1];              // 原来 L2 位置
-    $mofun['l'][0][1] = $mofun['l'][2][0];  // L2 被 L4 替代
-    $mofun['l'][2][0] = $mofun['l'][2][1];  // L4 被 L8 替代
+    $mofun['l'][0][1] = $mofun['l'][1][0];  // L2 被 L4 替代
+    $mofun['l'][1][0] = $mofun['l'][2][1];  // L4 被 L8 替代
     $mofun['l'][2][1] = $mofun['l'][1][2];  // L8 被 L6 替代
     $mofun['l'][1][2] = $tmp2;              // L6 被 L2 替代
 
