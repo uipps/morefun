@@ -396,6 +396,11 @@ function twist_E() {    // TODO 待验证正确性
 
 //魔方基本动作函数打包
 function twist_one($str) {
+    // 目前测试 -d "R B U" 是正确的， (ailearn_py37) F:\develope\python\game\mofang_rubikcube\rubiksCube_AlphaZero>python main.py -d "R B U"
+    //   -d "R B" 是正确的，但是换一下顺序-d "B R"就不正确了。
+    //  RF得到的就能解出，但是FR就不对；
+
+
     // 每个面最多有U,U2,u三种指令：（顺时针1圈、2圈、3圈(即逆时针1圈)），而且全部转换成了这种统一的规范字符形式
 
     $act_letter = substr($str, 0, 1);
@@ -577,7 +582,7 @@ function get_action_by_str($act_str, $alias_act=[], $type=0) {
     if (!$act_str) return [];   // 不操作直接返回
 
     $orig_str = $act_str;   // 备份原字符串
-    echo date('Y-m-d H:i:s') . ' 需要执行的动作：' . $orig_str . "\r\n";
+    if ($GLOBALS['debug']) echo date('Y-m-d H:i:s') . ' 需要执行的动作：' . $orig_str . "\r\n";
 
     // 如果是type=2:小写表示顺时针，大写字母表示逆时针; 跟本程序恰好相反，只需要对大小写字母转换一下即可。
     if (2 == $type) {

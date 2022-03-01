@@ -32,6 +32,13 @@ YYY WWW GGG BBB
     RRR
     RRR
 
+ 4. 支持python直接执行PHP命令，并获取执行结果
+ (ailearn_py37) F:\develope\python\game\mofang_rubikcube\rubiksCube_AlphaZero>python main.py -d "B R B "
+  python F:/develope/python/game/mofang_rubikcube/rubiksCube_AlphaZero/main.py -d " R B " (不建议在其他目录执行，重新生成这些文件很耗时)
+
+ D:/php8103ntsx64/php.exe F:/develope/javascript/game_/mofang_rubikcube/morefun_uipps/rubikcube.php -g 0 -d "RR"
+ D:/php8103ntsx64/php.exe F:/develope/javascript/game_/mofang_rubikcube/morefun_uipps/rubikcube.php -g 1 -d "R F"
+
 
  3. TODO 输入所要得到的效果（初始状态为6面全好），限定多少步骤完成，用程序跑出所做的操作-多少种都列表出，(大写字母是顺时针，大写字母+'是逆时针)
  php mofang_solve.php -t "" -n 6
@@ -76,7 +83,7 @@ function main($o) {
     //   5) 是否要空格
     $kongge = (isset($o['k']) && $o['k']) ? $o['k'] : 0;
     //   6) 是否debug
-    $GLOBALS['debug'] = (isset($o['g']) && $o['g']) ? $o['g'] : 1;
+    $GLOBALS['debug'] = isset($o['g']) ? $o['g'] : 1;
 
     // 2. 参数过滤，如果出现了不被识别的动作，过滤掉，并不给出提示。全部变成 F,F2,f
     $action_arr = get_action_by_str($str, $alias_arr);
