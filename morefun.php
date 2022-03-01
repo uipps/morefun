@@ -317,7 +317,7 @@ function twist_D(&$mofun) {
 
 //前后中间层顺时针旋转90°（yz轴，x-0）。M是夹在左右之间。// 从操作的便捷性来说，前后中间层可以用一下，而水平和左右中间层用的很少，后2个先不实现。
 //  参考 https://ruwix.com/the-rubiks-cube/notation/ 或 https://github.com/Renovamen/Just-a-Cube
-function twist_M(&$mofun) {    // TODO 待验证正确性
+function twist_M(&$mofun) {
     // 左右两面均没有变化，只有yz轴12个色块调换位置
     $tmp1 = $mofun['u'][0][1];              // 原来 U2 位置
     $mofun['u'][0][1] = $mofun['f'][0][1];  // U2 被 F2 替代
@@ -339,7 +339,7 @@ function twist_M(&$mofun) {    // TODO 待验证正确性
 }
 
 //左右中间层顺时针旋转90°（xy轴，z-0）S是夹在前后之间。
-function twist_S(&$mofun) {    // TODO 待验证正确性
+function twist_S(&$mofun) {
     // 前后两面均没有变化，只有xy轴12个色块调换位置
     $tmp1 = $mofun['u'][1][0];              // 原来 U4 位置
     $mofun['u'][1][0] = $mofun['l'][2][1];  // U4 被 L8 替代
@@ -361,12 +361,12 @@ function twist_S(&$mofun) {    // TODO 待验证正确性
 }
 
 //水平中间层顺时针旋转90°（xz轴，y-0）E是夹在上下之间。
-function twist_E(&$mofun) {    // TODO 待验证正确性
+function twist_E(&$mofun) {
     // 上下两面均没有变化，只有xz轴12个色块调换位置
     $tmp1 = $mofun['f'][1][0];              // 原来 F4 位置
     $mofun['f'][1][0] = $mofun['l'][1][0];  // F4 被 L4 替代
     $mofun['l'][1][0] = $mofun['b'][1][0];  // L4 被 B4 替代
-    $mofun['b'][1][2] = $mofun['r'][1][0];  // B4 被 R4 替代
+    $mofun['b'][1][0] = $mofun['r'][1][0];  // B4 被 R4 替代
     $mofun['r'][1][0] = $tmp1;              // R4 被 F4 替代
 
     $tmp2 = $mofun['f'][1][1];              // 原来 F5 位置
