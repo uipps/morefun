@@ -42,7 +42,7 @@ The names of the facelet positions of the cube (letters stand for Up, Left, Fron
 $kociemba_face_order = ['u', 'r', 'f', 'd', 'l', 'b'];   // python kociemba 所用 6个面字符串顺序, 就用小写，这个是某些python程序用到的顺序
 //$kociemba_face_order = ['u', 'l', 'f', 'r', 'b', 'd'];
 
-//define('human_habit_order', ['u', 'l', 'f', 'r', 'b', 'd']);    // 符合人们看图习惯的顺序：Up, Left, Front, Right, Back, and Down 正是上图顺序
+define('human_habit_order', ['u', 'l', 'f', 'r', 'b', 'd']);    // 符合人们看图习惯的顺序：Up, Left, Front, Right, Back, and Down 正是上图顺序
 
 
 // 定义6个面的颜色，通常是：上黄下白，前蓝后绿，左橙右红。用于拼装初始魔方状态 ; 无需颜色，颜色只在最后字符串中进行替换即可。
@@ -826,4 +826,65 @@ function statStrLength($str) {
     }
 
     return $l_rlt;
+}
+
+// 填充魔方，字符串表示转为数组表示
+function fillMoFangWithString($a_str, $str_order, $pglass=0) {
+    $mofang_obj = [];
+    if (!$a_str) return $mofang_obj;
+
+    $a_str = str_replace(' ', '', $a_str);  // 去掉空格，有时候为了方便看，会人为添加一些空格
+    if (strlen($a_str) != 54)
+        exit(' $a_str is length error!');
+
+    if (!is_array($str_order)) $str_order = str_split($str_order);  // 转成数组用于遍历
+
+    if ($pglass) {
+        // 上层
+        $i = 0;
+        $mofang_obj['u'][0] = str_split(substr($a_str, $i * 3, 3));$i++;
+        $mofang_obj['u'][1] = str_split(substr($a_str, $i * 3, 3));$i++;
+        $mofang_obj['u'][2] = str_split(substr($a_str, $i * 3, 3));$i++;
+
+        // 中间部分
+        $lay = 0; // 第1层
+        $mofang_obj['l'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
+        $mofang_obj['f'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
+        $mofang_obj['r'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
+        $mofang_obj['b'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
+
+        $lay++; // 第2层
+        $mofang_obj['l'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
+        $mofang_obj['f'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
+        $mofang_obj['r'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
+        $mofang_obj['b'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
+
+        $lay++; // 第3层
+        $mofang_obj['l'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
+        $mofang_obj['f'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
+        $mofang_obj['r'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
+        $mofang_obj['b'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
+
+        // 下层
+        $mofang_obj['d'][0] = str_split(substr($a_str, $i * 3, 3));$i++;
+        $mofang_obj['d'][1] = str_split(substr($a_str, $i * 3, 3));$i++;
+        $mofang_obj['d'][2] = str_split(substr($a_str, $i * 3, 3));
+
+        return $mofang_obj;
+    }
+
+    // 常规情况
+    foreach ($str_order as $key => $letter) {
+        // 每个面有9个块
+        $l_tmp = substr($a_str, $key * 9, 9); // 每次截取9个字符作为一组
+        // 然后再切成3*3
+        $l_arr = [];    // 二维数组
+        for ($i = 0; $i < 3; $i++) {
+            $l_row0 = substr($l_tmp, $i * 3, 3);
+            $l_arr[] = str_split($l_row0);
+        }
+        $mofang_obj[$letter] = $l_arr;
+    }
+
+    return $mofang_obj;
 }

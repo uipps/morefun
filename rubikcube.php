@@ -66,15 +66,14 @@ LLL FFF RRR BBB
 
   通过公式：F2 U' R' L F2 R L' U' F2 能将复原的魔方变成上图的样子
   通过公式：F2 U  R' L F2 R L' U  F2 能将上图复原，
-  本程序的解法：
+  本程序的解法：(未提供-b开始状态，则默认为全部归位的状态)
     php rubikcube.php -e "UUUUUUUUU LRLLLLLLL FLFFFFFFF RFRRRRRRR BBBBBBBBB DDDDDDDDD" -n 10 --e_order "ulfrbd" --b_order urfdlb
 
 
 
 
-   2) 示例：第二层中间棱块公式，打小怪兽公式，将位于UR位置的FR棱块归位
- php rubikcube.php -t "xxxxxxxxx xxxLLLLLL " -n 6
-
+   2) 示例：第二层中间棱块公式，打小怪兽公式，将位于FU位置的FR棱块归位（在前）
+  期望将：
     xxx
     xxX
     xxx
@@ -85,7 +84,7 @@ LLL FFF RRR BBB
     DDD
     DDD
 
- 要变成 ===> 棱块归位
+ 要变成 ===> 如下的棱块归位
 
     xxx
     xxX
@@ -96,6 +95,12 @@ LLL FFF RRR BBB
     DDD
     DDD
     DDD
+ 打小怪兽 1) 在前  U  R  U' R' U' F' U  F
+         2) 在右  U' F' U  F  U  R  U' R'
+
+  通过公式： U  R  U' R' U' F' U  F 能将上图变成想要的状态
+  本程序的解法：(未提供-b开始状态，则默认为全部归位的状态)
+    php rubikcube.php -e "UUUUUUUUU LRLLLLLLL FLFFFFFFF RFRRRRRRR BBBBBBBBB DDDDDDDDD" -n 10 --e_order "ulfrbd" --b_order urfdlb
 
 
  */
@@ -120,9 +125,8 @@ function main($o) {
         //return '';
     }
 
-    //$end_order = (isset($o['e_order']) && $o['e_order']) ? $o['e_order'] : '';
-    //$begin_order = (isset($o['b_order']) && $o['b_order']) ? $o['b_order'] : '';
-
+    $end_order = (isset($o['e_order']) && $o['e_order']) ? $o['e_order'] : implode(human_habit_order);
+    $begin_order = (isset($o['b_order']) && $o['b_order']) ? $o['b_order'] : implode(human_habit_order);
 
     //   2) 结果顺序order参数, 主要是结果顺序
     $order_str = (isset($o['o']) && $o['o']) ? $o['o'] : 'urfdlb';  //  // $order_str = 'ulfrbd'; 符合人们查看习惯的
@@ -140,7 +144,7 @@ function main($o) {
     $mofang_obj = $mofun_init;
 
     //   3) 初始状态，可以用x表示不关心的块位置
-    $begin_ob = (isset($o['b']) && $o['b']) ? $o['b'] : $mofun_init;
+    $begin_str = (isset($o['b']) && $o['b']) ? $o['b'] : '';
     //   4) 动作别名
     $alias_arr = (isset($o['a']) && $o['a']) ? $o['a'] : [];
     //   5) 是否要空格
@@ -152,7 +156,14 @@ function main($o) {
     $num_solve = (isset($o['n']) && $o['n']) ? $o['n'] : 20;
     //   8) 终态，即目标字符串，支持用x表示不关心的块位置
     if (isset($o['e']) && $o['e']) {
-        $end_ob = (isset($o['e']) && $o['e']) ? $o['e'] : 20;
+        $end_str = $o['e'];
+        $end_ob = fillMoFangWithString($end_str, $end_order, $pglass_type);
+        if ($begin_str)
+            $begin_ob = fillMoFangWithString($begin_str, $begin_order, $pglass_type);
+        else $begin_ob = $mofun_init;
+        //print_r($begin_ob);exit;
+
+        //if ($GLOBALS['debug']) echo "    对应的图形展示：\r\n" . getGraghOfMoFang($end_ob) . "\r\n";
         return solve_mofang($begin_ob, $end_ob, $num_solve);
     }
 
@@ -176,6 +187,7 @@ function main($o) {
         // -b "ddd" -f 1 -o ulfrbd
         // format 字符串为, 格式化输出
         if (isset($o['b']) && $o['b']) {
+            $begin_ob = fillMoFangWithString($o['b'], $begin_order, $pglass_type);
             $l_str = getRltStr($begin_ob, $order_str, $kongge);
         }
         //else if (isset($o['e']) && $o['e'])
@@ -191,16 +203,19 @@ function main($o) {
     return '';
 }
 
-// 解魔方, 需要设置最大旋转次数，上帝之数是20，因此通常不能超过20步
-function solve_mofang($begin_obj, $end_obj, $max_move=20) {
+// 解魔方, 需要指定旋转次数-不是最大次数(不是20以内的数字，上帝之数是20，因此通常不能超过20步)，指定多少步数就多少步数完成。
+function solve_mofang($begin_obj, $end_obj, $num_solve=20) {
     // 输出初始状态图案和目标状态图案，
-    echo date('Y-m-d H:i:s') . '  初始状态：' . "\r\n";
+    echo date('Y-m-d H:i:s') . '  初始状态：' . "\r\n" . getGraghOfMoFang($begin_obj) . "\r\n";
+    echo date('Y-m-d H:i:s') . '  目标状态：' . "\r\n" . getGraghOfMoFang($end_obj) . "\r\n";
 
-    echo date('Y-m-d H:i:s') . '  目标状态：' . "\r\n";
+    // TODO 如果提供了转动步骤，验证一下转动步骤是否能成功！
 
-    // 转动步骤
+
+    // 未提供转动步骤，则寻找所有的转动方案，并且是在指定的步数，不能多不能少。9个面，每个面可以有三种转动方法，遍历所有的可能组合。
+
+
     $l_movies = [];
-
     echo date('Y-m-d H:i:s') . '      movies：' . implode(' ', $l_movies) . "\r\n";
 
     return '';
