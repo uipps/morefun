@@ -105,6 +105,7 @@ function getSort($str) {
 //右面顺时针旋转90°，只需要三维数组的相关节点的替换表示出来即可。
 function twist_R() {
     global $mofun;
+    //if ($GLOBALS['debug']) echo ' before ' . __FUNCTION__ . ', $mofun: ' . "\r\n"; print_r($mofun);
     // 涉及到5个大面-20个小颜色面块的变化，除了对面(l左面没有变化)，每个面都需要进行一些变换。
     // 1. 4个面的变化
     $tmp1 = $mofun['u'][0][2];              // 就是原来U3位置，将其颜色先放到临时变量中
@@ -122,20 +123,20 @@ function twist_R() {
     $tmp3 = $mofun['u'][2][2];              // 就是原来U9位置
     $mofun['u'][2][2] = $mofun['f'][2][2];  // U9被F9替代
     $mofun['f'][2][2] = $mofun['d'][2][2];  // F9被D9替代
-    $mofun['d'][2][2] = $mofun['b'][0][0];  // D6被B1替代
+    $mofun['d'][2][2] = $mofun['b'][0][0];  // D9被B1替代
     $mofun['b'][0][0] = $tmp3;              // B1被U9替代
 
 
-    // 2. 所在的侧（右），中心块没有动；其他8个都有变化。
+    // 2. 所转面（右），中心块没有动；其他8个都有变化。
     $tmp1 = $mofun['r'][0][0];              // 就是原来R1位置
     $mofun['r'][0][0] = $mofun['r'][2][0];  // R1被R7替代
     $mofun['r'][2][0] = $mofun['r'][2][2];  // R7被R9替代
     $mofun['r'][2][2] = $mofun['r'][0][2];  // R9被R3替代
-    $mofun['r'][0][0] = $tmp1;              // R3被R1替代
+    $mofun['r'][0][2] = $tmp1;              // R3被R1替代
 
     $tmp2 = $mofun['r'][0][1];              // 就是原来R2位置
-    $mofun['r'][0][1] = $mofun['r'][2][0];  // R2被R4替代
-    $mofun['r'][2][0] = $mofun['r'][2][1];  // R4被R8替代
+    $mofun['r'][0][1] = $mofun['r'][1][0];  // R2被R4替代
+    $mofun['r'][1][0] = $mofun['r'][2][1];  // R4被R8替代
     $mofun['r'][2][1] = $mofun['r'][1][2];  // R8被R6替代
     $mofun['r'][1][2] = $tmp2;              // R6被R2替代
 }

@@ -40,6 +40,12 @@ YYY WWW GGG BBB
  D:/php8103ntsx64/php.exe F:/develope/javascript/game_/mofang_rubikcube/morefun_uipps/rubikcube.php -g 1 -d "R F"
 
 
+ 5. -d "B R" 位置不对研究，-d "R B"却是正确的
+   -- 程序执行后，得到的结果字符串是： RRFUUFUUF RDDRRRRDD FFDFFDFFLDDBDDBLLBULLULLULLUBBUBBRBB ；
+        实际上右侧应该是： RRRRRRDDD ; 得到的右侧是： RDDRRRRDD
+
+  php rubikcube.php -d "B R" -g 1 > br_err.txt
+
  3. TODO 输入所要得到的效果（初始状态为6面全好），限定多少步骤完成，用程序跑出所做的操作-多少种都列表出，(大写字母是顺时针，大写字母+'是逆时针)
  php mofang_solve.php -t "" -n 6
 
@@ -96,6 +102,7 @@ function main($o) {
         // print_r($action_arr);
         twist_multi($action_arr);
     }
+    //if ($GLOBALS['debug']) echo ' after "' . $str .'" , $mofun: ' . "\r\n"; print_r($GLOBALS['mofun']);
 
     // 5. 按照order参数指定的顺序，输出各个面各块的颜色。
     $l_str = getRltStr($GLOBALS['mofun'], $order_str, $kongge, $pglass_type, $pglass_color);
