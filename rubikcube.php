@@ -17,6 +17,11 @@
  php rubikcube.php -d "F R U R' U' F'" -i 1
 
 
+
+ -- 获取解魔方步骤，以下是经过一次R操作后的状态
+ php rubikcube.php -e "UUFUUFUUFRRRRRRRRRFFDFFDFFDDDBDDBDDBLLLLLLLLLUBBUBBUBB" -n 3 --e_order "urfdlb"
+
+
  2. 其他组织方式输出:
  php rubikcube.php -d "" -p pglass -c "{\"u\":\"O\",\"l\":\"Y\",\"f\":\"W\",\"r\":\"G\",\"b\":\"B\",\"d\":\"R\"}"
  -- 得到的就是:OOOOOOOOOYYYWWWGGGBBBYYYWWWGGGBBBYYYWWWGGGBBBRRRRRRRRR
@@ -69,8 +74,8 @@ LLL FFF RRR BBB
   通过公式：F2 U' R' L F2 R L' U' F2 能将复原的魔方变成上图的样子
   通过公式：F2 U  R' L F2 R L' U  F2 能将上图复原，
   本程序的解法：(未提供-b开始状态，则默认为全部归位的状态)
+    php rubikcube.php -e "UUUUUUUUU LRLLLLLLL FLFFFFFFF RFRRRRRRR BBBBBBBBB DDDDDDDDD" -n 5 --e_order "ulfrbd" --b_order ulfrbd
     php rubikcube.php -e "UUUUUUUUU LRLLLLLLL FLFFFFFFF RFRRRRRRR BBBBBBBBB DDDDDDDDD" -n 10 --e_order "ulfrbd" --b_order urfdlb
-
 
 
 
@@ -122,10 +127,9 @@ function main($o) {
     // 1. 参数检查，
     //   1) action参数，转动动作字母是否在指定动作限定内，不认识的动作，直接删除掉
     $str = (isset($o['d']) && $o['d']) ? $o['d'] : '';
-    if (!isset($o['d'])) {
-        echo '  用法如下： php rubikcube.php -d "R R\'"' . "\r\n";
-        //return '';
-    }
+    //if (!isset($o['d'])) {
+        //echo '  用法如下： php rubikcube.php -d "R R\'"' . "\r\n";
+    //}
 
     //   9) 获取操作的反操作
     if (isset($o['i']) && $o['i']) {
@@ -229,31 +233,17 @@ function solve_mofang($begin_obj, $end_obj, $num_solve=20) {
     // 未提供转动步骤，则寻找所有的转动方案，并且是在指定的步数，不能多不能少。9个面，每个面可以有三种转动方法，
     //   遍历所有的可能组合。上帝之数最大CJ(27,20) = 4522487307570679132924674048; (含MSE)
     //                               CJ(18,20) = 399030807609558105468750;
-    $action_list = [];
-    getZuHeAction($action_list, $num_solve, 0);
-    //if ($GLOBALS['debug']) print_r($action_list);
 
-    // TODO 将运行结果存放到文件，下次不用再计算，速度更快。
-
-
-    // 移动步骤
     $l_movies = [];
-    $end_obj_fmt = getRltStr($end_obj, human_habit_order, 0);           // 转成统一的格式用于比较
-    // 逐个组合动作进行验证，将得到的结果同目标结果对比，记录下匹配的动作。
-    foreach ($action_list as $l_act_s) {
-        $begin_obj = $orig_begin_ob;
-        twist_multi($begin_obj, explode(' ', $l_act_s));
-        // 进行对比
-        $begin_obj_fmt = getRltStr($begin_obj, human_habit_order, 0);   // 转成统一的格式用于比较
-        if ($begin_obj_fmt == $end_obj_fmt) {
-            $l_movies[] = $l_act_s;
-        }
+    // 从最少的步骤开始找，逐步增加到最多$num_solve步骤解决
+    for ($i = 1; $i <= $num_solve; $i++) {
+        solve_by_number($l_movies, $begin_obj, $end_obj, $i);
     }
 
     if (!$l_movies)
         echo date('Y-m-d H:i:s') . '      在 ' . $num_solve . ' 步骤内，未找到解体方法！' . "\r\n";
     else
-        echo date('Y-m-d H:i:s') . '      在 ' . $num_solve . ' 步骤内，解决方案有：' . implode("\r\n", $l_movies) . "\r\n";
+        echo date('Y-m-d H:i:s') . '      在 ' . $num_solve . ' 步骤内，解决方案有：' . "\r\n" . implode("\r\n", $l_movies) . "\r\n";
 
     return '';
 }

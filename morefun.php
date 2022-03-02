@@ -919,7 +919,7 @@ function CJ($m, $n){
 $GLOBALS['temp'] = [];          // 记录每次递归的动作字符
 //$GLOBALS['action_list'] = [];
 // 遍历所有的可能组合, 采用递归方式实现多重嵌套for循环；计算公式：27 * pow(24, n-1) 数组会非常大。
-function getZuHeAction(&$action_list, $zong_shu, $i=0) {
+function getZuHeActionRecursion(&$action_list, $zong_shu, $i=0) {
     $i++;   // 第i层循环
     foreach ($GLOBALS['play_action9'] as $act_letter) {
         // 如果跟上次的相同，则跳过，相邻两个面不能相同
@@ -938,7 +938,7 @@ function getZuHeAction(&$action_list, $zong_shu, $i=0) {
             $GLOBALS['temp'][$i-1] = $act_letter_s;
 
             if ($i < $zong_shu) {
-                getZuHeAction($action_list, $zong_shu, $i);   // 递归，多重循环
+                getZuHeActionRecursion($action_list, $zong_shu, $i);   // 递归，多重循环
             } else {
                 // 循环体里面的计算，这里只需要记录所有动作组合。
 
@@ -954,6 +954,8 @@ function getZuHeAction(&$action_list, $zong_shu, $i=0) {
 
 // 对操作取反，取逆 php rubikcube.php -d "F R U R' U' F'" -i 1  ， 应该得到 F U R u r f
 function get_inverse_operation($dongzuo) {
+    if (!$dongzuo) return '';
+
     $l_str = '';
     // 不能直接字符串取反，需要格式化掉特殊字符为单字母U，u和U2数字2; 180°取反也是180°；所以只需要处理单字母即可
     $action_arr = get_action_by_str($dongzuo);
@@ -976,4 +978,29 @@ function get_inverse_operation($dongzuo) {
     }
 
     return $l_str;
+}
+
+// 步数精确匹配地解魔方
+function solve_by_number(&$l_movies, $begin_obj, $end_obj, $num_solve=20) {
+    $orig_begin_ob = $begin_obj;
+
+    $action_list = [];
+    getZuHeActionRecursion($action_list, $num_solve, 0);
+
+    // TODO 将运行结果存放到文件，下次不用再计算，速度更快。
+
+
+    // 移动步骤
+    //$l_movies = [];
+    $end_obj_fmt = getRltStr($end_obj, human_habit_order, 0);           // 转成统一的格式用于比较
+    // 逐个组合动作进行验证，将得到的结果同目标结果对比，记录下匹配的动作。
+    foreach ($action_list as $l_act_s) {
+        $begin_obj = $orig_begin_ob;
+        twist_multi($begin_obj, explode(' ', $l_act_s));
+        // 进行对比
+        $begin_obj_fmt = getRltStr($begin_obj, human_habit_order, 0);   // 转成统一的格式用于比较
+        if ($begin_obj_fmt == $end_obj_fmt) {
+            $l_movies[] = $l_act_s;
+        }
+    }
 }
