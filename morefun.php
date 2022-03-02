@@ -44,6 +44,7 @@ $kociemba_face_order = ['u', 'r', 'f', 'd', 'l', 'b'];   // python kociemba 所�
 
 define('human_habit_order', ['u', 'l', 'f', 'r', 'b', 'd']);    // 符合人们看图习惯的顺序：Up, Left, Front, Right, Back, and Down 正是上图顺序
 
+define('GOD_NUM', 20); // 上帝之数
 
 // 定义6个面的颜色，通常是：上黄下白，前蓝后绿，左橙右红。用于拼装初始魔方状态 ; 无需颜色，颜色只在最后字符串中进行替换即可。
 //$face_color = [];   // 默认就用U R F D L B 表示颜色好了。
@@ -51,7 +52,7 @@ define('human_habit_order', ['u', 'l', 'f', 'r', 'b', 'd']);    // 符合人们�
 //$face_color = ['u' => 'y', 'd' => 'w', 'f' => 'b', 'b' => 'g', 'l' => 'o', 'r' => 'r'];
 
 
-$play_action9 = array_merge($kociemba_face_order, ['m','s','e']);  //  除了6个面，还有夹在左右之间的M层M、前后之间的S层、上下之间的水平层E
+$play_action9 = array_merge($kociemba_face_order, []);  // 'm','s','e' 除了6个面，还有夹在左右之间的M层M、前后之间的S层、上下之间的水平层E
 
 // 定义逆操作字符, 当前就支持3个:i和'，如：Fi F' F`
 $inverse_str = ['i', "'", '`'];
@@ -394,7 +395,7 @@ function twist_one(&$mofun, $str) {
     // 每个面最多有U,U2,u三种指令：（顺时针1圈、2圈、3圈(即逆时针1圈)），而且全部转换成了这种统一的规范字符形式
 
     $act_letter = substr($str, 0, 1);
-    $str = str_replace('1', '', $str);  // 去掉数字1，其实这里可以不用替换
+    //$str = str_replace('1', '', $str);  // 去掉数字1，其实这里可以不用替换
 
     if (!in_array(strtolower($act_letter), $GLOBALS['play_action9'])) {exit(' action error' . $str);}
 
@@ -406,9 +407,13 @@ function twist_one(&$mofun, $str) {
         $l_num = substr($str, 1);   //
         if (!is_numeric($l_num)) {exit(' num error' . $l_num);}
         $l_num = $l_num + 0;    // 强制转数字
-        for ($i = 0; $i < $l_num; $i++) {
+        if (2 != $l_num) {exit(' num !=2 error' . $l_num);}
+
+        // 不用循环，直接执行2次即可。每种指令只有三种操作；TODO 为了兼容U3这种表示，也可以保留循环。
+        //for ($i = 0; $i < $l_num; $i++)
             $l_func($mofun);
-        }
+            $l_func($mofun);
+
     } else {
         // 单字母，无数字的情况
         if (ctype_lower($act_letter)) {
@@ -888,3 +893,63 @@ function fillMoFangWithString($a_str, $str_order, $pglass=0) {
 
     return $mofang_obj;
 }
+
+// 临时使用，阶乘 php -r "function jc($n){if(1==$n)return 1;return bcmul($n,jc($n-1));} echo jc(27);"
+// 实现组合数C(m,n)的多种组合的计算方法：m为在多少个数中；n为取多少个为一组，不能重复取
+// php -r "function C($m,$n){if($n>$m||$m<1||$n<1)return 0;$A=1;$B=1;for($j=2;$j<=$n;$j++)$B=bcmul($B,$j);for($i=$m;$i>$m-$n;$i--)$A=bcmul($A,$i);return bcdiv($A,$B);} echo C(11,5);"
+//function C($m, $n) {
+//    if ($n > $m || $m < 1|| $n < 1)
+//        return 0;
+//    $A = 1;
+//    $B = 1;
+//    for ($j = 2; $j <= $n; $j++)
+//        $B = bcmul($B,$j);
+//    for ($i = $m; $i > $m - $n; $i--)
+//        $A = bcmul($A,$i);
+//    return bcdiv($A,$B);
+//}
+// 下一个动作所在面不能跟上次相同，相同面至少间隔一次，比排列组合数要多。-3是因为27个动作里面9个面，每个面有3个，所以剩下24个可选动作
+function CJ($m, $n){
+    if ($n > $m || $m < 1 || $n < 1) return 0;
+    $A = bcmul($m, bcpow($m - 3, $n - 1));
+    return $A;
+}
+
+$GLOBALS['temp'] = [];          // 记录每次递归的动作字符
+//$GLOBALS['action_list'] = [];
+// 遍历所有的可能组合, 采用递归方式实现多重嵌套for循环；计算公式：27 * pow(24, n-1) 数组会非常大。
+function getZuHeAction(&$action_list, $zong_shu, $i=0) {
+    $i++;   // 第i层循环
+    foreach ($GLOBALS['play_action9'] as $act_letter) {
+        // 如果跟上次的相同，则跳过，相邻两个面不能相同
+        if (isset($GLOBALS['temp'][$i-2]) && $act_letter == $GLOBALS['temp'][$i-2])
+            continue;
+
+//        //     每种动作有三种旋转程度：1圈、2圈、3圈(或逆时针1圈) ,
+//        $act_letter_big = strtoupper($act_letter);
+//        // 转换为3种可识别的基本动作U U2 u
+//        $action_3 = [];
+//        $action_3[] = $act_letter_big;
+//        $action_3[] = $act_letter_big . '2';
+//        $action_3[] = $act_letter;
+//        foreach ($action_3 as $l_act) {
+//
+//        }
+
+        // $act_letter字母需要记录下来，需要用，每层循环放到不同下标数组中
+        $GLOBALS['temp'][$i-1] = $act_letter;
+
+        if ($i < $zong_shu) {
+            getZuHeAction($action_list, $zong_shu, $i);   // 递归，多重循环
+        } else {
+            // 循环体里面的计算，这里只需要记录所有动作组合。
+
+            // 进行一次去重，颠倒顺序后如果一样，也认为相同，可以去重。暂不去重，认为是两个不同的转动方法
+            $l_str = implode(' ', $GLOBALS['temp']);
+            //$revert_str = strrev($l_str);
+            //if (!in_array($revert_str, $action_list))
+            $action_list[] = $l_str;
+        }
+    }
+}
+

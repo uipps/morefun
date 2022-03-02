@@ -153,7 +153,10 @@ function main($o) {
     $GLOBALS['debug'] = isset($o['g']) ? $o['g'] : 1;
 
     //   7) 解魔方最大步数
-    $num_solve = (isset($o['n']) && $o['n']) ? $o['n'] : 20;
+    $num_solve = (isset($o['n']) && $o['n']) ? $o['n'] : GOD_NUM;
+    if ($num_solve < 1) {exit('  $num_solve is error!');};
+    if ($num_solve > GOD_NUM) $num_solve = GOD_NUM;
+
     //   8) 终态，即目标字符串，支持用x表示不关心的块位置
     if (isset($o['e']) && $o['e']) {
         $end_str = $o['e'];
@@ -212,7 +215,16 @@ function solve_mofang($begin_obj, $end_obj, $num_solve=20) {
     // TODO 如果提供了转动步骤，验证一下转动步骤是否能成功！
 
 
-    // 未提供转动步骤，则寻找所有的转动方案，并且是在指定的步数，不能多不能少。9个面，每个面可以有三种转动方法，遍历所有的可能组合。
+    // 未提供转动步骤，则寻找所有的转动方案，并且是在指定的步数，不能多不能少。9个面，每个面可以有三种转动方法，
+    //   遍历所有的可能组合。上帝之数最大CJ(27,20) = 4522487307570679132924674048;
+    $action_list = [];
+    getZuHeAction($action_list, $num_solve, 0);
+    print_r($action_list);
+
+    // 将运行结果存放到文件，下次不用再计算，获取更快。
+    //     需要排除一些情况：下一个动作所在面不能跟上次相同，相同面至少间隔一次，转动次数强制限定在20以内
+
+
 
 
     $l_movies = [];
