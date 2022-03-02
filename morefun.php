@@ -52,7 +52,7 @@ define('GOD_NUM', 20); // 上帝之数
 //$face_color = ['u' => 'y', 'd' => 'w', 'f' => 'b', 'b' => 'g', 'l' => 'o', 'r' => 'r'];
 
 
-$play_action9 = array_merge($kociemba_face_order, []);  // 'm','s','e' 除了6个面，还有夹在左右之间的M层M、前后之间的S层、上下之间的水平层E
+$play_action9 = array_merge($kociemba_face_order, ['m','s','e']);  // 'm','s','e' 除了6个面，还有夹在左右之间的M层M、前后之间的S层、上下之间的水平层E
 
 // 定义逆操作字符, 当前就支持3个:i和'，如：Fi F' F`
 $inverse_str = ['i', "'", '`'];
@@ -910,8 +910,10 @@ function fillMoFangWithString($a_str, $str_order, $pglass=0) {
 //    return bcdiv($A,$B);
 //}
 // 下一个动作所在面不能跟上次相同，相同面至少间隔一次，比排列组合数要多。-3是因为27个动作里面9个面，每个面有3个，所以剩下24个可选动作
+// 假如不算MSE，那也有18中情况,18*15*15*.....
+//     php -r "function CJ($m,$n){if($m<6||$n<1)return 0;$A=bcmul($m,bcpow($m-3,$n-1));return $A;}echo CJ(27,5);"
 function CJ($m, $n){
-    if ($n > $m || $m < 1 || $n < 1) return 0;
+    if ($m < 6 || $n < 1) return 0;
     $A = bcmul($m, bcpow($m - 3, $n - 1));
     return $A;
 }

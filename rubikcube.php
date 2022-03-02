@@ -81,6 +81,8 @@ LLL FFF RRR BBB
     php rubikcube.php -e "UUUUUUUUU LRLLLLLLL FLFFFFFFF RFRRRRRRR BBBBBBBBB DDDDDDDDD" -n 3 --e_order "ulfrbd" --b_order urfdlb
     php rubikcube.php -e "UUFUUFUUFRRRRRRRRRFFDFFDFFDDDBDDBDDBLLLLLLLLLUBBUBBUBB" -n 3 --e_order "urfdlb"
 
+  运行结果：
+     9个面，5步，共900万(CJ(27,5)=8957952)组合，就消耗1.6G内存，320秒才执行完。所以6步及以上的根本没法运行。
 
    2) 示例：第二层中间棱块公式，打小怪兽公式，将位于FU位置的FR棱块归位（在前）
   期望将：
@@ -116,6 +118,11 @@ LLL FFF RRR BBB
  */
 //define('clockwise', 'clockwise');           // '顺时针'
 //define('anti-clockwise', 'anti-clockwise'); // '逆时针'
+
+ini_set('memory_limit', -1);    // 取消内存限制
+
+$GLOBALS['l_begin_time'] = microtime(1);
+$GLOBALS['start_mem'] = memory_get_usage();
 
 include_once 'morefun.php';
 
@@ -279,6 +286,13 @@ function solve_mofang($beginOk, $begin_obj, $end_obj, $num_solve=20, $act_str=''
         echo date('Y-m-d H:i:s') . '      在 ' . $num_solve . ' 步骤内，未找到解魔方方法！' . "\r\n";
     else
         echo date('Y-m-d H:i:s') . '      在 ' . $num_solve . ' 步骤内，解决方案有：' . "\r\n" . implode("\r\n", $l_movies) . "\r\n";
+
+
+    // 时间花费计算
+    $end_mem = memory_get_usage();
+    echo "\n" . '  endtime：' . date('Y-m-d H:i:s') . " ， cost:" . (microtime(1) - $GLOBALS['l_begin_time']) . 's！内存使用: ' .
+        ($end_mem - $GLOBALS['start_mem']) . ' = ' . $end_mem . ' - ' . $GLOBALS['start_mem'] .
+        ' (最大分配内存：' . memory_get_peak_usage() . ') ' ;
 
     return '';
 }
