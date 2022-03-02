@@ -409,8 +409,7 @@ function twist_one(&$mofun, $str) {
         $l_num = $l_num + 0;    // 强制转数字
         if (2 != $l_num) {exit(' num !=2 error' . $l_num);}
 
-        // 不用循环，直接执行2次即可。每种指令只有三种操作；TODO 为了兼容U3这种表示，也可以保留循环。
-        //for ($i = 0; $i < $l_num; $i++)
+        // 不用循环，直接执行2次即可。每种指令只有三种操作；内部没有U3这种表示，U3替换为u
             $l_func($mofun);
             $l_func($mofun);
 
@@ -845,52 +844,53 @@ function fillMoFangWithString($a_str, $str_order, $pglass=0) {
 
     if (!is_array($str_order)) $str_order = str_split($str_order);  // 转成数组用于遍历
 
-    if ($pglass) {
-        // 上层
-        $i = 0;
-        $mofang_obj['u'][0] = str_split(substr($a_str, $i * 3, 3));$i++;
-        $mofang_obj['u'][1] = str_split(substr($a_str, $i * 3, 3));$i++;
-        $mofang_obj['u'][2] = str_split(substr($a_str, $i * 3, 3));$i++;
-
-        // 中间部分
-        $lay = 0; // 第1层
-        $mofang_obj['l'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
-        $mofang_obj['f'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
-        $mofang_obj['r'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
-        $mofang_obj['b'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
-
-        $lay++; // 第2层
-        $mofang_obj['l'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
-        $mofang_obj['f'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
-        $mofang_obj['r'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
-        $mofang_obj['b'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
-
-        $lay++; // 第3层
-        $mofang_obj['l'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
-        $mofang_obj['f'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
-        $mofang_obj['r'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
-        $mofang_obj['b'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
-
-        // 下层
-        $mofang_obj['d'][0] = str_split(substr($a_str, $i * 3, 3));$i++;
-        $mofang_obj['d'][1] = str_split(substr($a_str, $i * 3, 3));$i++;
-        $mofang_obj['d'][2] = str_split(substr($a_str, $i * 3, 3));
-
+    if (!$pglass) {
+        // 常规情况
+        foreach ($str_order as $key => $letter) {
+            // 每个面有9个块
+            $l_tmp = substr($a_str, $key * 9, 9); // 每次截取9个字符作为一组
+            // 然后再切成3*3
+            $l_arr = [];    // 二维数组
+            for ($i = 0; $i < 3; $i++) {
+                $l_row0 = substr($l_tmp, $i * 3, 3);
+                $l_arr[] = str_split($l_row0);
+            }
+            $mofang_obj[$letter] = $l_arr;
+        }
         return $mofang_obj;
     }
 
-    // 常规情况
-    foreach ($str_order as $key => $letter) {
-        // 每个面有9个块
-        $l_tmp = substr($a_str, $key * 9, 9); // 每次截取9个字符作为一组
-        // 然后再切成3*3
-        $l_arr = [];    // 二维数组
-        for ($i = 0; $i < 3; $i++) {
-            $l_row0 = substr($l_tmp, $i * 3, 3);
-            $l_arr[] = str_split($l_row0);
-        }
-        $mofang_obj[$letter] = $l_arr;
-    }
+    // $pglass的情况
+
+    // 上层
+    $i = 0;
+    $mofang_obj['u'][0] = str_split(substr($a_str, $i * 3, 3));$i++;
+    $mofang_obj['u'][1] = str_split(substr($a_str, $i * 3, 3));$i++;
+    $mofang_obj['u'][2] = str_split(substr($a_str, $i * 3, 3));$i++;
+
+    // 中间部分
+    $lay = 0; // 第1层
+    $mofang_obj['l'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
+    $mofang_obj['f'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
+    $mofang_obj['r'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
+    $mofang_obj['b'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
+
+    $lay++; // 第2层
+    $mofang_obj['l'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
+    $mofang_obj['f'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
+    $mofang_obj['r'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
+    $mofang_obj['b'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
+
+    $lay++; // 第3层
+    $mofang_obj['l'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
+    $mofang_obj['f'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
+    $mofang_obj['r'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
+    $mofang_obj['b'][$lay] = str_split(substr($a_str, $i * 3, 3));$i++;
+
+    // 下层
+    $mofang_obj['d'][0] = str_split(substr($a_str, $i * 3, 3));$i++;
+    $mofang_obj['d'][1] = str_split(substr($a_str, $i * 3, 3));$i++;
+    $mofang_obj['d'][2] = str_split(substr($a_str, $i * 3, 3));
 
     return $mofang_obj;
 }
@@ -917,7 +917,6 @@ function CJ($m, $n){
 }
 
 $GLOBALS['temp'] = [];          // 记录每次递归的动作字符
-//$GLOBALS['action_list'] = [];
 // 遍历所有的可能组合, 采用递归方式实现多重嵌套for循环；计算公式：27 * pow(24, n-1) 数组会非常大。
 function getZuHeActionRecursion(&$action_list, $zong_shu, $i=0) {
     $i++;   // 第i层循环
@@ -946,7 +945,7 @@ function getZuHeActionRecursion(&$action_list, $zong_shu, $i=0) {
                 $l_str = implode(' ', $GLOBALS['temp']);
                 //$revert_str = strrev($l_str);
                 //if (!in_array($revert_str, $action_list))
-                $action_list[] = $l_str;
+                $action_list[$l_str] = '';
             }
         }
     }
@@ -981,7 +980,7 @@ function get_inverse_operation($dongzuo) {
 }
 
 // 校验转动步骤是否能成功！
-function is_right_actions($begin_obj, $end_obj, $act_str) {
+function is_succ_actions($begin_obj, $end_obj, $act_str) {
     $action_arr = get_action_by_str($act_str);
     if ($action_arr) {
         // 进行旋转操作
@@ -995,27 +994,50 @@ function is_right_actions($begin_obj, $end_obj, $act_str) {
     return false;
 }
 
-// 步数精确匹配地解魔方
-function solve_by_number(&$l_movies, $begin_obj, $end_obj, $num_solve=20) {
+// 步数精确匹配地解魔方. 注：初始状态是完好的魔方，可以记录到文件中去，作为蓝本。如果不是完好的则不能作为蓝本
+function solve_by_number_beginOK(&$l_movies, $begin_obj, $end_obj, $num_solve=20) {
     $orig_begin_ob = $begin_obj;
 
-    $action_list = [];
-    getZuHeActionRecursion($action_list, $num_solve, 0);
+    $path = __DIR__;
+    $file = 'solve_morefun_' . str_pad($num_solve, 2, '0', STR_PAD_LEFT) . '.txt';
+    $full_file = $path . '/' . $file;
+    if (file_exists($full_file)) {
+        // 优先从文件或redis读取数据，不用再计算，速度更快
+        $action_list = parse_ini_file($file, false);    // key只会存在一条记录
+        print_r($action_list);//exit;
+        $file_exist = 1;
+    } else {
+        $action_list = [];
+        getZuHeActionRecursion($action_list, $num_solve, 0);
+        $file_exist = 0;
+    }
 
-    // TODO 将运行结果存放到文件，下次不用再计算，速度更快。
-
-
+    $file_cont = '';
     // 移动步骤
-    //$l_movies = [];
-    $end_obj_fmt = getRltStr($end_obj, human_habit_order, 0);           // 转成统一的格式用于比较
+    $end_str_fmt = getRltStr($end_obj, human_habit_order, 0);           // 转成统一的格式用于比较
     // 逐个组合动作进行验证，将得到的结果同目标结果对比，记录下匹配的动作。
-    foreach ($action_list as $l_act_s) {
-        $begin_obj = $orig_begin_ob;
-        twist_multi($begin_obj, explode(' ', $l_act_s));
-        // 进行对比
-        $begin_obj_fmt = getRltStr($begin_obj, human_habit_order, 0);   // 转成统一的格式用于比较
-        if ($begin_obj_fmt == $end_obj_fmt) {
-            $l_movies[] = $l_act_s;
+    foreach ($action_list as $l_act_s => $kk_54) {
+        if ($kk_54 && 54 == strlen($kk_54)) {
+            // 文件里面保存过，不用再进行旋转了
+            $begin_str_fmt = $kk_54;
+        } else {
+            $begin_obj = $orig_begin_ob;
+            twist_multi($begin_obj, explode(' ', $l_act_s));
+            $begin_str_fmt = getRltStr($begin_obj, human_habit_order, 0);   // 转成统一的格式用于比较
         }
+        // 进行对比
+        if ($begin_str_fmt == $end_str_fmt)
+            $l_movies[] = $l_act_s;
+
+        // 将运行结果存放到文件或redis，下次不用再计算，速度更快
+        if (!$file_exist) {
+            //$file_cont .= $begin_str_fmt . '="' . $l_act_s . "\"\n";
+            $file_cont .= $l_act_s . '=' . $begin_str_fmt . "\n";       // 不需要引号也能正常解析ini
+        }
+    }
+
+    // 写入文件
+    if (!$file_exist) {
+        file_put_contents($full_file, $file_cont);
     }
 }

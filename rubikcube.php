@@ -78,8 +78,8 @@ LLL FFF RRR BBB
   通过公式：F2 U  R' L F2 R L' U  F2 能将上图复原，
   本程序的解法：(未提供-b开始状态，则默认为全部归位的状态)
     php rubikcube.php -e "UUUUUUUUU LRLLLLLLL FLFFFFFFF RFRRRRRRR BBBBBBBBB DDDDDDDDD" -n 5 --e_order "ulfrbd" --b_order ulfrbd
-    php rubikcube.php -e "UUUUUUUUU LRLLLLLLL FLFFFFFFF RFRRRRRRR BBBBBBBBB DDDDDDDDD" -n 10 --e_order "ulfrbd" --b_order urfdlb
-
+    php rubikcube.php -e "UUUUUUUUU LRLLLLLLL FLFFFFFFF RFRRRRRRR BBBBBBBBB DDDDDDDDD" -n 3 --e_order "ulfrbd" --b_order urfdlb
+    php rubikcube.php -e "UUFUUFUUFRRRRRRRRRFFDFFDFFDDDBDDBDDBLLLLLLLLLUBBUBBUBB" -n 3 --e_order "urfdlb"
 
 
    2) 示例：第二层中间棱块公式，打小怪兽公式，将位于FU位置的FR棱块归位（在前）
@@ -178,13 +178,36 @@ function main($o) {
     if (isset($o['e']) && $o['e']) {
         $end_str = $o['e'];
         $end_ob = fillMoFangWithString($end_str, $end_order, $pglass_type);
-        if ($begin_str)
+
+        // 判断end是否完好的魔方，后续处理方式会有不同
+        $mofun_init_str = getRltStr($mofun_init, $end_order, 0);
+        $end_is_init = 0;
+        if ($mofun_init_str == str_replace(' ', '', $end_str))
+            $end_is_init = 1;
+
+        // 判断begin是否完好的魔方
+        $begin_is_init = 0;
+        if ($begin_str) {
             $begin_ob = fillMoFangWithString($begin_str, $begin_order, $pglass_type);
-        else $begin_ob = $mofun_init;
+            $mofun_init_str = getRltStr($mofun_init, $begin_order, 0);
+            if ($mofun_init_str == str_replace(' ', '', $begin_str))
+                $begin_is_init = 1;
+        } else {
+            $begin_ob = $mofun_init;
+            $begin_is_init = 1;
+        }
         //print_r($begin_ob);exit;
 
         //if ($GLOBALS['debug']) echo "    对应的图形展示：\r\n" . getGraghOfMoFang($end_ob) . "\r\n";
-        return solve_mofang($begin_ob, $end_ob, $num_solve, $str);
+        // 分为三种情况: 1.初态是完好的魔方 2.目标是完好的魔方 3.初态和目标都不是完好的魔方
+        if ($begin_is_init) {
+            return solve_mofang_beginOk($begin_ob, $end_ob, $num_solve, $str);
+        } else if ($end_is_init) {
+            echo ' please change to begin_is_init! 参考begin是完好魔方的情况，应该类似，只是倒过来了。' . "\n";
+            return '';
+        } else {
+            return solve_mofang_part($begin_ob, $end_ob, $num_solve, $str);
+        }
     }
 
     // 2. 参数过滤，如果出现了不被识别的动作，过滤掉，并不给出提示。全部变成 F,F2,f
@@ -223,8 +246,8 @@ function main($o) {
     return '';
 }
 
-// 解魔方, 需要指定旋转次数-不是最大次数(不是20以内的数字，上帝之数是20，因此通常不能超过20步)，指定多少步数就多少步数完成。
-function solve_mofang($begin_obj, $end_obj, $num_solve=20, $act_str='') {
+// 解魔方, 初始状态完后的情形，需要指定旋转次数-不是最大次数(不是20以内的数字，上帝之数是20，因此通常不能超过20步)，指定多少步数就多少步数完成。
+function solve_mofang_beginOk($begin_obj, $end_obj, $num_solve=20, $act_str='') {
     $orig_begin_ob = $begin_obj;
     // 输出初始状态图案和目标状态图案，
     echo date('Y-m-d H:i:s') . '  初始状态：' . "\r\n" . getGraghOfMoFang($begin_obj) . "\r\n";
@@ -232,7 +255,7 @@ function solve_mofang($begin_obj, $end_obj, $num_solve=20, $act_str='') {
 
     // 如果提供了转动步骤，表示验证一下转动步骤是否能成功！
     if ($act_str) {
-        $is_right_act = is_right_actions($begin_obj, $end_obj, $act_str);
+        $is_right_act = is_succ_actions($begin_obj, $end_obj, $act_str);
         if ($is_right_act)
             echo date('Y-m-d H:i:s') . '      ' . $act_str . ' 方法正确！' . "\r\n";
         else
@@ -247,7 +270,7 @@ function solve_mofang($begin_obj, $end_obj, $num_solve=20, $act_str='') {
     $l_movies = [];
     // 从最少的步骤开始找，逐步增加到最多$num_solve步骤解决
     for ($i = 1; $i <= $num_solve; $i++) {
-        solve_by_number($l_movies, $begin_obj, $end_obj, $i);
+        solve_by_number_beginOK($l_movies, $begin_obj, $end_obj, $i);
     }
 
     if (!$l_movies)
