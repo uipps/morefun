@@ -995,6 +995,7 @@ function is_succ_actions($begin_obj, $end_obj, $act_str) {
 }
 
 // 步数精确匹配地解魔方. 注：初始状态是完好的魔方，可以记录到文件中去，作为蓝本。如果不是完好的则不能作为蓝本
+// TODO 当 $num_solve == 6 的时候，组合数205031250，2亿多，数量太大，内存溢出，无法运行
 function solve_by_number_beginOK(&$l_movies, $begin_obj, $end_obj, $num_solve=20) {
     $orig_begin_ob = $begin_obj;
 
@@ -1030,14 +1031,14 @@ function solve_by_number_beginOK(&$l_movies, $begin_obj, $end_obj, $num_solve=20
             $l_movies[] = $l_act_s;
 
         // 将运行结果存放到文件或redis，下次不用再计算，速度更快
-        if (!$file_exist) {
+        if (!$file_exist && $num_solve < 6) {
             //$file_cont .= $begin_str_fmt . '="' . $l_act_s . "\"\n";
             $file_cont .= $l_act_s . '=' . $begin_str_fmt . "\n";       // 不需要引号也能正常解析ini
         }
     }
 
     // 写入文件
-    if (!$file_exist) {
+    if (!$file_exist && $num_solve < 6) {
         file_put_contents($full_file, $file_cont);
     }
 }
