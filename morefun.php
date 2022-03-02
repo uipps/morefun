@@ -922,33 +922,31 @@ function getZuHeAction(&$action_list, $zong_shu, $i=0) {
     $i++;   // 第i层循环
     foreach ($GLOBALS['play_action9'] as $act_letter) {
         // 如果跟上次的相同，则跳过，相邻两个面不能相同
-        if (isset($GLOBALS['temp'][$i-2]) && $act_letter == $GLOBALS['temp'][$i-2])
+        if (isset($GLOBALS['temp'][$i-2]) && $act_letter == strtolower(substr($GLOBALS['temp'][$i-2],0,1)))
             continue;
 
-//        //     每种动作有三种旋转程度：1圈、2圈、3圈(或逆时针1圈) ,
-//        $act_letter_big = strtoupper($act_letter);
-//        // 转换为3种可识别的基本动作U U2 u
-//        $action_3 = [];
-//        $action_3[] = $act_letter_big;
-//        $action_3[] = $act_letter_big . '2';
-//        $action_3[] = $act_letter;
-//        foreach ($action_3 as $l_act) {
-//
-//        }
+        // 每个面有三种旋转程度：1圈、2圈、3圈(或逆时针1圈)，表示为U U2 u
+        $act_letter_big = strtoupper($act_letter);
+        // 转换为3种可识别的基本动作U U2 u
+        $action_3 = [];
+        $action_3[] = $act_letter;
+        $action_3[] = $act_letter_big;
+        $action_3[] = $act_letter_big . '2';
+        foreach ($action_3 as $act_letter_s) {
+            // $act_letter字母需要记录下来，需要用，每层循环放到不同下标数组中
+            $GLOBALS['temp'][$i-1] = $act_letter_s;
 
-        // $act_letter字母需要记录下来，需要用，每层循环放到不同下标数组中
-        $GLOBALS['temp'][$i-1] = $act_letter;
+            if ($i < $zong_shu) {
+                getZuHeAction($action_list, $zong_shu, $i);   // 递归，多重循环
+            } else {
+                // 循环体里面的计算，这里只需要记录所有动作组合。
 
-        if ($i < $zong_shu) {
-            getZuHeAction($action_list, $zong_shu, $i);   // 递归，多重循环
-        } else {
-            // 循环体里面的计算，这里只需要记录所有动作组合。
-
-            // 进行一次去重，颠倒顺序后如果一样，也认为相同，可以去重。暂不去重，认为是两个不同的转动方法
-            $l_str = implode(' ', $GLOBALS['temp']);
-            //$revert_str = strrev($l_str);
-            //if (!in_array($revert_str, $action_list))
-            $action_list[] = $l_str;
+                // 进行一次去重，颠倒顺序后如果一样，也认为相同，可以去重。暂不去重，认为是两个不同的转动方法
+                $l_str = implode(' ', $GLOBALS['temp']);
+                //$revert_str = strrev($l_str);
+                //if (!in_array($revert_str, $action_list))
+                $action_list[] = $l_str;
+            }
         }
     }
 }
