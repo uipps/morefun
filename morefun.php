@@ -952,3 +952,28 @@ function getZuHeAction(&$action_list, $zong_shu, $i=0) {
     }
 }
 
+// 对操作取反，取逆 php rubikcube.php -d "F R U R' U' F'" -i 1  ， 应该得到 F U R u r f
+function get_inverse_operation($dongzuo) {
+    $l_str = '';
+    // 不能直接字符串取反，需要格式化掉特殊字符为单字母U，u和U2数字2; 180°取反也是180°；所以只需要处理单字母即可
+    $action_arr = get_action_by_str($dongzuo);
+
+    // 将数组反转，然后再逐个判断取反
+    $action_arr = array_reverse($action_arr);
+    $action_arr = array_filter($action_arr);    // 过滤空元素
+
+    foreach ($action_arr as $l_act) {
+        if (strlen($l_act) > 1) {
+            $l_rever = $l_act;
+        } else {
+            // 单字母
+            if (ctype_lower($l_act))
+                $l_rever = strtoupper($l_act);
+            else
+                $l_rever = strtolower($l_act);
+        }
+        $l_str .= $l_rever . ' ';
+    }
+
+    return $l_str;
+}

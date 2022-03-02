@@ -13,6 +13,8 @@
 
  php rubikcube.php -o "urfdlb" -d "F R U R' U' F'"  -- 指定排序，动作组合
 
+ -- 获取操作的反操作  F R U R' U' F' 得到 F U R u r f
+ php rubikcube.php -d "F R U R' U' F'" -i 1
 
 
  2. 其他组织方式输出:
@@ -112,7 +114,7 @@ include_once 'morefun.php';
 
 $GLOBALS['debug'] = 1;
 
-$option = getopt('d:o:a:k:p:c:g:s:f:b:e:n:', ['e_order:', 'b_order:']);
+$option = getopt('d:o:a:k:p:c:g:s:f:b:e:n:i:', ['e_order:', 'b_order:']);
 main($option);
 
 
@@ -124,6 +126,14 @@ function main($o) {
         echo '  用法如下： php rubikcube.php -d "R R\'"' . "\r\n";
         //return '';
     }
+
+    //   9) 获取操作的反操作
+    if (isset($o['i']) && $o['i']) {
+        $inverse_act = get_inverse_operation($str);
+        echo date('Y-m-d H:i:s') . ' ' . $str . ' 的逆反操作为：' . $inverse_act . "\r\n"; // 也可以把小写字母替换成U'
+        return '';
+    }
+
 
     $end_order = (isset($o['e_order']) && $o['e_order']) ? $o['e_order'] : implode(human_habit_order);
     $begin_order = (isset($o['b_order']) && $o['b_order']) ? $o['b_order'] : implode(human_habit_order);
