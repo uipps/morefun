@@ -1004,7 +1004,7 @@ function solve_by_number_beginOK(&$l_movies, $begin_obj, $end_obj, $num_solve=20
     if (file_exists($full_file)) {
         // 优先从文件或redis读取数据，不用再计算，速度更快
         $action_list = parse_ini_file($file, false);    // key只会存在一条记录
-        print_r($action_list);//exit;
+        //print_r($action_list);//exit;
         $file_exist = 1;
     } else {
         $action_list = [];
@@ -1039,5 +1039,26 @@ function solve_by_number_beginOK(&$l_movies, $begin_obj, $end_obj, $num_solve=20
     // 写入文件
     if (!$file_exist) {
         file_put_contents($full_file, $file_cont);
+    }
+}
+
+// 步数精确匹配地解魔方. 注：初始状态、终态均不是完好的魔方，不用文件记录
+function solve_by_number_part(&$l_movies, $begin_obj, $end_obj, $num_solve=20) {
+    $orig_begin_ob = $begin_obj;
+
+    $action_list = [];
+    getZuHeActionRecursion($action_list, $num_solve, 0);
+
+    // 移动步骤
+    $end_str_fmt = getRltStr($end_obj, human_habit_order, 0);           // 转成统一的格式用于比较
+    // 逐个组合动作进行验证，将得到的结果同目标结果对比，记录下匹配的动作。
+    foreach ($action_list as $l_act_s => $kk_54) {
+        $begin_obj = $orig_begin_ob;
+        twist_multi($begin_obj, explode(' ', $l_act_s));
+        $begin_str_fmt = getRltStr($begin_obj, human_habit_order, 0);   // 转成统一的格式用于比较
+
+        // 进行对比
+        if ($begin_str_fmt == $end_str_fmt)
+            $l_movies[] = $l_act_s;
     }
 }

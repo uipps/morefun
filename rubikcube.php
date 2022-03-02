@@ -201,13 +201,12 @@ function main($o) {
         //if ($GLOBALS['debug']) echo "    对应的图形展示：\r\n" . getGraghOfMoFang($end_ob) . "\r\n";
         // 分为三种情况: 1.初态是完好的魔方 2.目标是完好的魔方 3.初态和目标都不是完好的魔方
         if ($begin_is_init) {
-            return solve_mofang_beginOk($begin_ob, $end_ob, $num_solve, $str);
+            return solve_mofang(1, $begin_ob, $end_ob, $num_solve, $str);
         } else if ($end_is_init) {
             echo ' please change to begin_is_init! 参考begin是完好魔方的情况，应该类似，只是倒过来了。' . "\n";
             return '';
-        } else {
-            return solve_mofang_part($begin_ob, $end_ob, $num_solve, $str);
         }
+        return solve_mofang(0, $begin_ob, $end_ob, $num_solve, $str);
     }
 
     // 2. 参数过滤，如果出现了不被识别的动作，过滤掉，并不给出提示。全部变成 F,F2,f
@@ -246,8 +245,8 @@ function main($o) {
     return '';
 }
 
-// 解魔方, 初始状态完后的情形，需要指定旋转次数-不是最大次数(不是20以内的数字，上帝之数是20，因此通常不能超过20步)，指定多少步数就多少步数完成。
-function solve_mofang_beginOk($begin_obj, $end_obj, $num_solve=20, $act_str='') {
+// 解魔方, 初始状态完好的情形，需要指定旋转次数-不是最大次数(不是20以内的数字，上帝之数是20，因此通常不能超过20步)，指定多少步数就多少步数完成。
+function solve_mofang($beginOk, $begin_obj, $end_obj, $num_solve=20, $act_str='') {
     $orig_begin_ob = $begin_obj;
     // 输出初始状态图案和目标状态图案，
     echo date('Y-m-d H:i:s') . '  初始状态：' . "\r\n" . getGraghOfMoFang($begin_obj) . "\r\n";
@@ -270,7 +269,10 @@ function solve_mofang_beginOk($begin_obj, $end_obj, $num_solve=20, $act_str='') 
     $l_movies = [];
     // 从最少的步骤开始找，逐步增加到最多$num_solve步骤解决
     for ($i = 1; $i <= $num_solve; $i++) {
-        solve_by_number_beginOK($l_movies, $begin_obj, $end_obj, $i);
+        if ($beginOk)
+            solve_by_number_beginOK($l_movies, $begin_obj, $end_obj, $i);
+        else
+            solve_by_number_part($l_movies, $begin_obj, $end_obj, $i);
     }
 
     if (!$l_movies)
