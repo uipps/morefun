@@ -497,8 +497,9 @@ function twist_multi(&$mofun, $com) {
 }
 
 // 获取结果颜色字符串，各面按照order_str指定顺序，默认完好的顺序是 上、右、前、下、左、后： UUUUUUUUU RRRRRRRRR FFFFFFFFF DDDDDDDDD LLLLLLLLL BBBBBBBBB
-function getRltStr($mofun, $order_str, $kongge=1) {
-    $order_arr = str_split($order_str);
+function getRltStr($mofun, $order_arr, $kongge=1) {
+    if (!is_array($order_arr))
+        $order_arr = str_split($order_arr);
 
     $color_face = [];                               // 一维数组
     foreach ($order_arr as $letter_face) {

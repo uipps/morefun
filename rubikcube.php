@@ -208,6 +208,7 @@ function main($o) {
 
 // 解魔方, 需要指定旋转次数-不是最大次数(不是20以内的数字，上帝之数是20，因此通常不能超过20步)，指定多少步数就多少步数完成。
 function solve_mofang($begin_obj, $end_obj, $num_solve=20) {
+    $orig_begin_ob = $begin_obj;
     // 输出初始状态图案和目标状态图案，
     echo date('Y-m-d H:i:s') . '  初始状态：' . "\r\n" . getGraghOfMoFang($begin_obj) . "\r\n";
     echo date('Y-m-d H:i:s') . '  目标状态：' . "\r\n" . getGraghOfMoFang($end_obj) . "\r\n";
@@ -216,19 +217,33 @@ function solve_mofang($begin_obj, $end_obj, $num_solve=20) {
 
 
     // 未提供转动步骤，则寻找所有的转动方案，并且是在指定的步数，不能多不能少。9个面，每个面可以有三种转动方法，
-    //   遍历所有的可能组合。上帝之数最大CJ(27,20) = 4522487307570679132924674048;
+    //   遍历所有的可能组合。上帝之数最大CJ(27,20) = 4522487307570679132924674048; (含MSE)
+    //                               CJ(18,20) = 399030807609558105468750;
     $action_list = [];
     getZuHeAction($action_list, $num_solve, 0);
-    print_r($action_list);
+    //if ($GLOBALS['debug']) print_r($action_list);
 
-    // 将运行结果存放到文件，下次不用再计算，获取更快。
-    //     需要排除一些情况：下一个动作所在面不能跟上次相同，相同面至少间隔一次，转动次数强制限定在20以内
-
+    // TODO 将运行结果存放到文件，下次不用再计算，速度更快。
 
 
-
+    // 移动步骤
     $l_movies = [];
-    echo date('Y-m-d H:i:s') . '      movies：' . implode(' ', $l_movies) . "\r\n";
+    $end_obj_fmt = getRltStr($end_obj, human_habit_order, 0);           // 转成统一的格式用于比较
+    // 逐个组合动作进行验证，将得到的结果同目标结果对比，记录下匹配的动作。
+    foreach ($action_list as $l_act_s) {
+        $begin_obj = $orig_begin_ob;
+        twist_multi($begin_obj, explode(' ', $l_act_s));
+        // 进行对比
+        $begin_obj_fmt = getRltStr($begin_obj, human_habit_order, 0);   // 转成统一的格式用于比较
+        if ($begin_obj_fmt == $end_obj_fmt) {
+            $l_movies[] = $l_act_s;
+        }
+    }
+
+    if (!$l_movies)
+        echo date('Y-m-d H:i:s') . '      在 ' . $num_solve . ' 步骤内，未找到解体方法！' . "\r\n";
+    else
+        echo date('Y-m-d H:i:s') . '      在 ' . $num_solve . ' 步骤内，解决方案有：' . implode("\r\n", $l_movies) . "\r\n";
 
     return '';
 }
