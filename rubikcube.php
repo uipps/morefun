@@ -21,6 +21,9 @@
  -- 获取解魔方步骤，以下是经过一次R操作后的状态
  php rubikcube.php -e "UUFUUFUUFRRRRRRRRRFFDFFDFFDDDBDDBDDBLLLLLLLLLUBBUBBUBB" -n 3 --e_order "urfdlb"
 
+ -- 提供-d数据表示校验改旋转步骤是否正确
+ php rubikcube.php -e "UUFUUFUUFRRRRRRRRRFFDFFDFFDDDBDDBDDBLLLLLLLLLUBBUBBUBB" --e_order "urfdlb" -d R
+
 
  2. 其他组织方式输出:
  php rubikcube.php -d "" -p pglass -c "{\"u\":\"O\",\"l\":\"Y\",\"f\":\"W\",\"r\":\"G\",\"b\":\"B\",\"d\":\"R\"}"
@@ -181,7 +184,7 @@ function main($o) {
         //print_r($begin_ob);exit;
 
         //if ($GLOBALS['debug']) echo "    对应的图形展示：\r\n" . getGraghOfMoFang($end_ob) . "\r\n";
-        return solve_mofang($begin_ob, $end_ob, $num_solve);
+        return solve_mofang($begin_ob, $end_ob, $num_solve, $str);
     }
 
     // 2. 参数过滤，如果出现了不被识别的动作，过滤掉，并不给出提示。全部变成 F,F2,f
@@ -221,14 +224,21 @@ function main($o) {
 }
 
 // 解魔方, 需要指定旋转次数-不是最大次数(不是20以内的数字，上帝之数是20，因此通常不能超过20步)，指定多少步数就多少步数完成。
-function solve_mofang($begin_obj, $end_obj, $num_solve=20) {
+function solve_mofang($begin_obj, $end_obj, $num_solve=20, $act_str='') {
     $orig_begin_ob = $begin_obj;
     // 输出初始状态图案和目标状态图案，
     echo date('Y-m-d H:i:s') . '  初始状态：' . "\r\n" . getGraghOfMoFang($begin_obj) . "\r\n";
     echo date('Y-m-d H:i:s') . '  目标状态：' . "\r\n" . getGraghOfMoFang($end_obj) . "\r\n";
 
-    // TODO 如果提供了转动步骤，验证一下转动步骤是否能成功！
-
+    // 如果提供了转动步骤，表示验证一下转动步骤是否能成功！
+    if ($act_str) {
+        $is_right_act = is_right_actions($begin_obj, $end_obj, $act_str);
+        if ($is_right_act)
+            echo date('Y-m-d H:i:s') . '      ' . $act_str . ' 方法正确！' . "\r\n";
+        else
+            echo date('Y-m-d H:i:s') . '      ' . $act_str . ' 方法不正确：' . "\r\n";
+        return '';
+    }
 
     // 未提供转动步骤，则寻找所有的转动方案，并且是在指定的步数，不能多不能少。9个面，每个面可以有三种转动方法，
     //   遍历所有的可能组合。上帝之数最大CJ(27,20) = 4522487307570679132924674048; (含MSE)
@@ -241,7 +251,7 @@ function solve_mofang($begin_obj, $end_obj, $num_solve=20) {
     }
 
     if (!$l_movies)
-        echo date('Y-m-d H:i:s') . '      在 ' . $num_solve . ' 步骤内，未找到解体方法！' . "\r\n";
+        echo date('Y-m-d H:i:s') . '      在 ' . $num_solve . ' 步骤内，未找到解魔方方法！' . "\r\n";
     else
         echo date('Y-m-d H:i:s') . '      在 ' . $num_solve . ' 步骤内，解决方案有：' . "\r\n" . implode("\r\n", $l_movies) . "\r\n";
 

@@ -980,6 +980,21 @@ function get_inverse_operation($dongzuo) {
     return $l_str;
 }
 
+// 校验转动步骤是否能成功！
+function is_right_actions($begin_obj, $end_obj, $act_str) {
+    $action_arr = get_action_by_str($act_str);
+    if ($action_arr) {
+        // 进行旋转操作
+        twist_multi($begin_obj, $action_arr);
+    }
+    // 进行对比
+    $end_obj_fmt   = getRltStr($end_obj, human_habit_order, 0);     // 转成统一的格式用于比较
+    $begin_obj_fmt = getRltStr($begin_obj, human_habit_order, 0);   // 转成统一的格式用于比较
+    if ($begin_obj_fmt == $end_obj_fmt)
+        return true;
+    return false;
+}
+
 // 步数精确匹配地解魔方
 function solve_by_number(&$l_movies, $begin_obj, $end_obj, $num_solve=20) {
     $orig_begin_ob = $begin_obj;
