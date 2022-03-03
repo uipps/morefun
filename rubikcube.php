@@ -149,8 +149,8 @@ function main($o) {
     }
 
 
-    $end_order = (isset($o['e_order']) && $o['e_order']) ? $o['e_order'] : implode(human_habit_order);
-    $begin_order = (isset($o['b_order']) && $o['b_order']) ? $o['b_order'] : implode(human_habit_order);
+    $end_order = (isset($o['e_order']) && $o['e_order']) ? $o['e_order'] : human_habit_order;
+    $begin_order = (isset($o['b_order']) && $o['b_order']) ? $o['b_order'] : human_habit_order;
 
     //   2) 结果顺序order参数, 主要是结果顺序
     $order_str = (isset($o['o']) && $o['o']) ? $o['o'] : 'urfdlb';  //  // $order_str = 'ulfrbd'; 符合人们查看习惯的

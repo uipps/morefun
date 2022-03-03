@@ -42,7 +42,7 @@ The names of the facelet positions of the cube (letters stand for Up, Left, Fron
 $kociemba_face_order = ['u', 'r', 'f', 'd', 'l', 'b'];   // python kociemba 所用 6个面字符串顺序, 就用小写，这个是某些python程序用到的顺序
 //$kociemba_face_order = ['u', 'l', 'f', 'r', 'b', 'd'];
 
-define('human_habit_order', ['u', 'l', 'f', 'r', 'b', 'd']);    // 符合人们看图习惯的顺序：Up, Left, Front, Right, Back, and Down 正是上图顺序
+define('human_habit_order', 'ulfrbd');    // 符合人们看图习惯的顺序：Up, Left, Front, Right, Back, and Down 正是上图顺序
 
 define('GOD_NUM', 20); // 上帝之数
 
